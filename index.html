@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resume Keyword Optimizer</title>
+  <title>Prompt Injection Resume Optimizer</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Resume parsing libraries -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,16 +19,15 @@
     <h1>🔍 Resume Optimizer</h1>
 
     <!-- Dark Mode Toggle -->
-  <div class="toggle-container">
-    <label class="switch">
-      <input type="checkbox" id="darkModeToggle">
-      <span class="slider"></span>
-    </label>
-    <span class="toggle-label">Dark Mode</span>
-  </div>
-  
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" id="darkModeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">Dark Mode</span>
+    </div>
 
-    <!-- Single Select Dropdown -->
+    <!-- Framework Selection -->
     <label for="frameworkSelect"><strong>Select Framework (Optional):</strong></label>
     <select id="frameworkSelect">
       <option value="">-- No Framework Selected --</option>
@@ -41,43 +39,88 @@
       <option value="PCI-DSS">PCI-DSS</option>
     </select>
 
-    <input type="file" id="fileInput" accept=".docx,.pdf,.txt" />
-    <button id="analyzeButton">Analyze Resume</button>
-
+    <!-- File Upload -->
+    <div class="upload-controls">
+      <input type="file" id="fileInput" accept=".docx,.pdf,.txt" />
+      <button id="analyzeButton">Analyze Resume</button>
+    </div>
     <div id="statusMessage"></div>
 
-    <hr>
-
-    <!-- Health Score Section -->
-  <div id="scoreContainer" class="score-box" style="display:none;">
-    <div class="score-label">Resume Health Score:</div>
-    <div class="score-bar-wrapper">
-      <div id="scoreBar" class="score-bar"></div>
+    <!-- Resume Preview -->
+    <div id="resumePreview" style="display:none;">
+      <canvas id="pdfPreview" style="display:none;"></canvas>
+      <div id="textPreview" class="text-preview" style="display:none;"></div>
     </div>
-    <div id="scoreText" class="score-text"></div>
-  </div>
 
-  <!-- Radar Chart -->
- <div class="chart-container" id="chartContainer" style="display: none;">
-    <h2>📊 Skill Domain Coverage</h2>
-    <canvas id="radarChart" width="400" height="400"></canvas>
-  </div>
-  
-  
+    <!-- Analysis Results -->
+    <div id="analysisResults" style="display:none;">
 
-    <h2>🧩 Missing Keywords by Domain</h2>
-    <div id="missingKeywords" class="cards-grid"></div>
+      <div class="preview-analysis-wrapper">
 
-    <hr>
+        <!-- Side-by-side Preview and Chart -->
+        <div class="preview-box">
+          <h2>📄 Uploaded Resume Preview</h2>
+          <canvas id="pdfPreviewAnalysis" style="display:none;"></canvas>
+          <div id="textPreviewAnalysis" class="text-preview" style="display:none;"></div>
+        </div>
 
-    <h2>🛠️ Suggested Enhancements</h2>
-    <textarea id="suggestions" rows="12" placeholder="Suggestions will appear here..."></textarea>
-    <button id="downloadButton">Download Suggestions</button>
+        <div class="chart-box">
+          <h2>📊 Skill Domain Coverage</h2>
+          <canvas id="radarChart" width="400" height="400"></canvas>
+        </div>
+
+      </div>
+
+      <!-- Health Score -->
+      <div id="scoreContainer" class="score-box">
+        <h2>✅ Resume Health Score</h2>
+        <div class="score-bar-wrapper">
+          <div id="scoreBar" class="score-bar"></div>
+        </div>
+        <div id="scoreText" class="score-text"></div>
+      </div>
+
+      <!-- Executive Summary -->
+      <div id="summaryContainer" class="summary-box">
+        <h2>🧠 Executive Summary</h2>
+        <p id="executiveSummary"></p>
+      </div>
+
+      <!-- Skills Matrix -->
+      <div id="matrixContainer" class="matrix-box">
+        <h2>📋 Skills Matrix</h2>
+        <table id="skillsMatrix">
+          <thead>
+            <tr>
+              <th>Domain</th>
+              <th>Match %</th>
+              <th>Rating</th>
+              <th>Frameworks</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Missing Keywords by Domain -->
+      <h2>🧩 Missing Keywords by Domain</h2>
+      <div id="missingKeywords" class="cards-grid"></div>
+
+      <!-- Suggestions -->
+      <h2>🛠️ Suggested Enhancements</h2>
+      <div class="suggestions-container" id="suggestionsContainer"></div>
+
+    </div>
 
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
 
 

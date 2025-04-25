@@ -1,295 +1,241 @@
-const domainKeywords = {
-    "Authentication & Authorization": [
-      "Multi-Factor Authentication", "Single Sign-On", "Identity Federation", "OAuth 2.0", "SAML",
-      "Zero Trust Architecture", "Role-Based Access Control", "Privileged Access Management",
-      "Authorization Models", "Directory Services", "LDAP Integration", "Conditional Access", "Least Privilege"
-    ],
-    "Data Protection & Privacy": [
-      "Data Encryption at Rest", "Data Encryption in Transit", "Key Management", "Tokenization",
-      "Data Loss Prevention", "Database Security", "Field-Level Security", "End-to-End Encryption",
-      "Data Retention Policies", "Data Minimization", "Confidentiality Controls", "Privacy Impact Assessment",
-      "GDPR Compliance", "HIPAA Compliance"
-    ],
-    "Risk Management & Governance": [
-      "Risk Assessment", "Vulnerability Management", "Security Risk Scoring", "Business Continuity Planning",
-      "Disaster Recovery Planning", "Incident Response Planning", "Threat Modeling", "Third-Party Risk Management",
-      "Vendor Risk Assessment", "Compliance Gap Analysis", "Audit Readiness", "Governance, Risk, and Compliance"
-    ],
-    "Security Operations & Monitoring": [
-      "Event Monitoring", "SIEM Integration", "Threat Detection", "Insider Threat Management",
-      "Incident Response", "Anomaly Detection", "Real-Time Monitoring", "Alerting & Escalation Procedures",
-      "Security Operations Center", "Security Incident Event Management"
-    ],
-    "Compliance Frameworks": [
-      "NIST 800-53", "NIST CSF", "ISO 27001", "SOC 2 Type I", "SOC 2 Type II", "GDPR", "HIPAA",
-      "PCI-DSS", "FedRAMP", "CMMC", "SOX Compliance", "Data Classification Standards"
-    ],
-    "Integration Security": [
-      "API Security", "Secure Integration Patterns", "OAuth-secured APIs", "Webhooks Security",
-      "Cross-Domain Integration Risks", "Integration Authentication", "System-to-System Encryption"
-    ]
-  };
-  
-  const frameworkDomainsMap = {
-    "NIST 800-53": ["Authentication & Authorization", "Data Protection & Privacy", "Risk Management & Governance", "Security Operations & Monitoring", "Compliance Frameworks", "Integration Security"],
-    "HIPAA": ["Data Protection & Privacy", "Risk Management & Governance", "Compliance Frameworks"],
-    "ISO 27001": ["Authentication & Authorization", "Data Protection & Privacy", "Risk Management & Governance", "Security Operations & Monitoring", "Compliance Frameworks"],
-    "SOC 2": ["Authentication & Authorization", "Risk Management & Governance", "Security Operations & Monitoring", "Compliance Frameworks"],
-    "GDPR": ["Data Protection & Privacy", "Compliance Frameworks"],
-    "PCI-DSS": ["Authentication & Authorization", "Data Protection & Privacy", "Integration Security", "Compliance Frameworks"]
-  };
-  
-  let resumeText = "";
-  let radarChart = null;
-  
-  document.getElementById('fileInput').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
-  
-    document.getElementById('statusMessage').textContent = "Parsing file...";
-  
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const ext = file.name.split('.').pop().toLowerCase();
-      if (ext === "txt") {
-        resumeText = e.target.result;
-        afterParsing();
-      } else if (ext === "docx") {
-        mammoth.extractRawText({ arrayBuffer: e.target.result }).then(result => {
-          resumeText = result.value;
-          afterParsing();
-        });
-      } else if (ext === "pdf") {
-        const typedarray = new Uint8Array(e.target.result);
-        pdfjsLib.getDocument(typedarray).promise.then(pdf => {
-          const pagePromises = [];
-          for (let i = 1; i <= pdf.numPages; i++) {
-            pagePromises.push(
-              pdf.getPage(i).then(page =>
-                page.getTextContent().then(tc =>
-                  tc.items.map(item => item.str).join(" ")
-                )
-              )
-            );
-          }
-          Promise.all(pagePromises).then(pages => {
-            resumeText = pages.join(" ");
-            afterParsing();
-          });
-        });
-      }
-    };
-    if (file.name.endsWith(".docx") || file.name.endsWith(".pdf")) {
+const fileInput = document.getElementById('fileInput');
+const analyzeButton = document.getElementById('analyzeButton');
+const frameworkSelect = document.getElementById('frameworkSelect');
+const radarChartCtx = document.getElementById('radarChart').getContext('2d');
+const previewCanvas = document.getElementById('pdfPreviewAnalysis');
+const previewText = document.getElementById('textPreviewAnalysis');
+const missingKeywords = document.getElementById('missingKeywords');
+const suggestionsContainer = document.getElementById('suggestionsContainer');
+const summaryContainer = document.getElementById('executiveSummary');
+const scoreBar = document.getElementById('scoreBar');
+const scoreText = document.getElementById('scoreText');
+const matrixTable = document.getElementById('skillsMatrix').getElementsByTagName('tbody')[0];
+
+const darkModeToggle = document.getElementById('darkModeToggle');
+darkModeToggle.addEventListener('change', () => {
+  document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+});
+
+let chart;
+
+// Skills by Domain
+const skillDomains = {
+  "Authentication & Authorization": [
+    "Multi-Factor Authentication", "Single Sign-On", "OAuth 2.0", "SAML"
+  ],
+  "Data Protection & Privacy": [
+    "Data Encryption", "Data Loss Prevention", "Privacy Impact Assessment"
+  ],
+  "Risk Management & Governance": [
+    "Risk Assessment", "Compliance Audit", "Risk Mitigation"
+  ],
+  "Security Operations & Monitoring": [
+    "Event Monitoring", "SIEM Integration", "Threat Detection"
+  ],
+  "Compliance Frameworks": [
+    "NIST 800-53", "HIPAA", "ISO 27001", "SOC 2", "GDPR", "PCI-DSS"
+  ],
+  "Integration Security": [
+    "OAuth-secured APIs", "Webhooks Security", "Cross-Domain Integration Risks"
+  ]
+};
+
+// Smart Suggestions per Domain
+const smartSuggestions = {
+  "Authentication & Authorization": [
+    "Highlight experience implementing SSO with SAML or OAuth2.",
+    "Add details about Zero Trust Architecture or PAM platforms."
+  ],
+  "Data Protection & Privacy": [
+    "Mention encryption at rest and in transit standards used.",
+    "Include data classification or tokenization experience."
+  ],
+  "Risk Management & Governance": [
+    "List prior risk assessment or compliance audit roles.",
+    "Include knowledge of frameworks (e.g., ISO 27001, NIST CSF)."
+  ],
+  "Security Operations & Monitoring": [
+    "Mention SIEM platform usage (e.g., Splunk, QRadar).",
+    "Describe real-time monitoring or incident response roles."
+  ],
+  "Compliance Frameworks": [
+    "Include certifications or projects with NIST, SOC 2, HIPAA.",
+    "Map resume achievements to control domains like AC, AU, etc."
+  ],
+  "Integration Security": [
+    "Note secure API development or OAuth-scoped API integrations.",
+    "Highlight cross-domain auth controls or webhook validation."
+  ]
+};
+
+// Text Extraction Logic
+async function extractText(file) {
+  if (file.type === 'application/pdf') {
+    const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+    let fullText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const text = content.items.map(i => i.str).join(" ");
+      fullText += text + "\n";
+    }
+    return fullText;
+  } else if (file.name.endsWith(".docx")) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        mammoth.extractRawText({ arrayBuffer: e.target.result })
+          .then(result => resolve(result.value));
+      };
       reader.readAsArrayBuffer(file);
-    } else {
+    });
+  } else {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
       reader.readAsText(file);
-    }
-  });
-  
-  function afterParsing() {
-    document.getElementById('statusMessage').textContent = "Parsing complete!";
-    document.getElementById('missingKeywords').innerHTML = '';
-    document.getElementById('suggestions').value = '';
+    });
   }
-  
-  document.getElementById('analyzeButton').addEventListener('click', function () {
-    if (!resumeText) {
-      alert("Please upload and parse a resume first!");
-      return;
-    }
-  
-    const selectedFramework = document.getElementById('frameworkSelect').value.trim();
-    const missingList = document.getElementById('missingKeywords');
-    missingList.innerHTML = '';
-    let allSuggestions = [];
-  
-    Object.entries(domainKeywords).forEach(([domain, keywords]) => {
-      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
-        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return;
-      }
-  
-      const domainSection = document.createElement('div');
-      domainSection.innerHTML = `<h3>${domain}</h3>`;
-  
-      const foundKeywords = keywords.filter(word =>
-        resumeText.toLowerCase().includes(word.toLowerCase())
-      );
-      const missingKeywords = keywords.filter(word => !foundKeywords.includes(word));
-  
-      const ul = document.createElement('ul');
-      missingKeywords.forEach(word => {
-        const li = document.createElement('li');
-        li.textContent = word;
-        ul.appendChild(li);
-        allSuggestions.push(generateSuggestion(word, domain));
-      });
-  
-      domainSection.appendChild(ul);
-      missingList.appendChild(domainSection);
-      missingList.appendChild(document.createElement('hr'));
-    });
-  
-    document.getElementById('suggestions').value = allSuggestions.join("\n");
-  
-    // === Resume Health Score Calculation ===
-    const totalKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
-      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
-        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
-      }
-      return sum + keywords.length;
-    }, 0);
-  
-    const matchedKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
-      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
-        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
-      }
-      const matches = keywords.filter(word => resumeText.toLowerCase().includes(word.toLowerCase()));
-      return sum + matches.length;
-    }, 0);
-  
-    const scorePercent = Math.round((matchedKeywords / totalKeywords) * 100);
-  
-    const scoreBar = document.getElementById('scoreBar');
-    const scoreText = document.getElementById('scoreText');
-    const scoreContainer = document.getElementById('scoreContainer');
-  
-    scoreContainer.style.display = "block";
-    scoreBar.style.width = `${scorePercent}%`;
-  
-    let scoreLabel = "Needs Work";
-    let scoreColor = "#ef4444";
-  
-    if (scorePercent >= 80) {
-      scoreLabel = "Excellent";
-      scoreColor = "#10b981";
-    } else if (scorePercent >= 50) {
-      scoreLabel = "Good";
-      scoreColor = "#facc15";
-    } else if (scorePercent >= 30) {
-      scoreLabel = "Fair";
-      scoreColor = "#f97316";
-    }
-  
-    scoreBar.style.backgroundColor = scoreColor;
-    scoreText.textContent = `${scorePercent}% match – ${scoreLabel}`;
-  
-    // === Radar Chart: Domain Coverage Visualization ===
-    const chartContainer = document.getElementById("chartContainer");
-    const ctx = document.getElementById("radarChart").getContext("2d");
-  
-    const labels = [];
-    const dataPoints = [];
-  
-    Object.entries(domainKeywords).forEach(([domain, keywords]) => {
-      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
-        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return;
-      }
-  
-      labels.push(domain);
-      const matches = keywords.filter(word =>
-        resumeText.toLowerCase().includes(word.toLowerCase())
-      );
-      const percent = Math.round((matches.length / keywords.length) * 100);
-      dataPoints.push(percent);
-    });
-  
-    if (radarChart) radarChart.destroy();
-  
-    radarChart = new Chart(ctx, {
-      type: 'radar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Keyword Match %',
-          data: dataPoints,
-          fill: true,
-          backgroundColor: 'rgba(59, 130, 246, 0.2)',
-          borderColor: '#3b82f6',
-          pointBackgroundColor: '#3b82f6'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          r: {
-            angleLines: { color: '#cbd5e1' },
-            grid: { color: '#e2e8f0' },
-            suggestedMin: 0,
-            suggestedMax: 100,
-            pointLabels: {
-              color: document.body.classList.contains('dark-mode') ? '#f3f4f6' : '#111827'
-            },
-            ticks: {
-              color: document.body.classList.contains('dark-mode') ? '#f3f4f6' : '#111827'
-            }
-          }
-        },
-        plugins: {
-          legend: { display: false }
+}
+
+// Keyword Matching
+function analyzeKeywords(text) {
+  const lowerText = text.toLowerCase();
+  const results = {};
+  let totalScore = 0;
+
+  Object.entries(skillDomains).forEach(([domain, keywords]) => {
+    const matched = keywords.filter(kw => lowerText.includes(kw.toLowerCase()));
+    const matchPercent = Math.round((matched.length / keywords.length) * 100);
+    totalScore += matchPercent;
+    results[domain] = {
+      matched,
+      missing: keywords.filter(kw => !matched.includes(kw)),
+      matchPercent
+    };
+  });
+
+  const avgScore = Math.round(totalScore / Object.keys(skillDomains).length);
+  return { results, avgScore };
+}
+
+// Match Rating
+function getRating(percent) {
+  if (percent >= 80) return "Excellent";
+  if (percent >= 60) return "Good";
+  if (percent >= 40) return "Fair";
+  return "Needs Work";
+}
+
+// Radar Chart Render
+function renderRadar(data) {
+  if (chart) chart.destroy();
+  chart = new Chart(radarChartCtx, {
+    type: 'radar',
+    data: {
+      labels: Object.keys(data),
+      datasets: [{
+        label: 'Coverage %',
+        data: Object.values(data).map(d => d.matchPercent),
+        fill: true,
+        borderColor: "#3b82f6",
+        backgroundColor: "rgba(59, 130, 246, 0.3)"
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          min: 0,
+          max: 100,
+          ticks: { stepSize: 10 }
         }
       }
-    });
-  
-    chartContainer.style.display = "block";
+    }
   });
-  
-  function generateSuggestion(keyword, domain) {
-    const templates = {
-      "Authentication & Authorization": [
-        `Led implementation of ${keyword} to enforce secure access across the enterprise.`,
-        `Improved ${keyword} processes to support zero trust and role-based access models.`,
-        `Integrated ${keyword} into IAM controls to enhance system security.`,
-        `Developed secure ${keyword} mechanisms aligned with authentication best practices.`,
-        `Enhanced identity assurance via ${keyword} within federated systems.`
-      ],
-      "Data Protection & Privacy": [
-        `Implemented ${keyword} to strengthen sensitive data handling practices.`,
-        `Conducted privacy impact assessments involving ${keyword} across business units.`,
-        `Improved encryption posture using ${keyword} techniques for data at rest and in transit.`,
-        `Aligned ${keyword} strategy with HIPAA/GDPR compliance goals.`,
-        `Assessed and upgraded ${keyword} controls to reduce risk of data exposure.`
-      ],
-      "Risk Management & Governance": [
-        `Performed enterprise-level assessments involving ${keyword} to support compliance readiness.`,
-        `Built governance workflows incorporating ${keyword} to manage risk effectively.`,
-        `Developed internal audit controls linked to ${keyword} for policy enforcement.`,
-        `Created scalable documentation supporting ${keyword} adoption across teams.`,
-        `Established controls around ${keyword} to support continuous compliance monitoring.`
-      ],
-      "Security Operations & Monitoring": [
-        `Integrated ${keyword} with security monitoring infrastructure to support incident response.`,
-        `Improved threat visibility by embedding ${keyword} into SOC workflows.`,
-        `Leveraged ${keyword} to detect anomalies and respond to security events in real-time.`,
-        `Configured ${keyword} within SIEM platform to enhance alerting precision.`,
-        `Evaluated ${keyword} coverage to close detection gaps in production environments.`
-      ],
-      "Compliance Frameworks": [
-        `Mapped ${keyword} controls to compliance objectives across frameworks like NIST, ISO, SOC 2.`,
-        `Integrated ${keyword} into readiness assessment programs and audit prep.`,
-        `Correlated ${keyword} efforts with evidence collection for annual audits.`,
-        `Reviewed ${keyword} control maturity against regulatory frameworks.`,
-        `Contributed to audit success by validating ${keyword} alignment with policy standards.`
-      ],
-      "Integration Security": [
-        `Secured APIs and systems through hardened ${keyword} design patterns.`,
-        `Validated ${keyword} to prevent cross-domain vulnerabilities during integration.`,
-        `Applied ${keyword} practices to support secure cloud-to-cloud communication.`,
-        `Assessed integration points for weaknesses in ${keyword} configurations.`,
-        `Established encryption and access policies governing ${keyword} pathways.`
-      ]
-    };
-  
-    const options = templates[domain] || [
-      `Applied ${keyword} within ${domain} to improve security maturity.`
-    ];
-    return options[Math.floor(Math.random() * options.length)];
-  }
-  
-  // Dark Mode Toggle
-  document.getElementById('darkModeToggle').addEventListener('change', function () {
-    document.body.classList.toggle('dark-mode', this.checked);
+}
+
+// Resume Preview Image
+async function renderPDFPreview(file) {
+  const canvas = previewCanvas;
+  const context = canvas.getContext('2d');
+  const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+  const page = await pdf.getPage(1);
+  const viewport = page.getViewport({ scale: 1.25 });
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+
+  await page.render({ canvasContext: context, viewport }).promise;
+  canvas.style.display = 'block';
+  previewText.style.display = 'none';
+}
+
+// Matrix Table
+function buildMatrix(results) {
+  matrixTable.innerHTML = "";
+  Object.entries(results).forEach(([domain, data]) => {
+    const row = matrixTable.insertRow();
+    row.insertCell().textContent = domain;
+    row.insertCell().textContent = `${data.matchPercent}%`;
+    row.insertCell().textContent = getRating(data.matchPercent);
+    row.insertCell().textContent = skillDomains["Compliance Frameworks"].join(", ");
   });
-  
-  
-  
-  
+}
+
+// Keyword Cards
+function displayMissingKeywords(results) {
+  missingKeywords.innerHTML = "";
+  Object.entries(results).forEach(([domain, data]) => {
+    const card = document.createElement("div");
+    card.innerHTML = `
+      <h3>${domain}</h3>
+      <ul>${data.missing.map(k => `<li>${k}</li>`).join("")}</ul>
+    `;
+    missingKeywords.appendChild(card);
+  });
+}
+
+// Smart Suggestions
+function displaySuggestions(results) {
+  suggestionsContainer.innerHTML = "";
+  Object.entries(results).forEach(([domain, data]) => {
+    if (data.matchPercent < 80 && smartSuggestions[domain]) {
+      const suggestionCard = document.createElement("div");
+      suggestionCard.className = "suggestion-card";
+      suggestionCard.innerHTML = `
+        <h3>${domain}</h3>
+        <ul>${smartSuggestions[domain].map(s => `<li>${s}</li>`).join("")}</ul>
+      `;
+      suggestionsContainer.appendChild(suggestionCard);
+    }
+  });
+}
+
+// Executive Summary
+function generateSummary(avgScore) {
+  if (avgScore >= 80) return "Your resume demonstrates strong alignment to security frameworks. Consider applying now!";
+  if (avgScore >= 50) return "You're on the right track. Enhance coverage in key domains to strengthen your alignment.";
+  return "Significant opportunities exist to align your resume with industry standards. Focus on integrating domain-relevant language.";
+}
+
+// Event Handler
+analyzeButton.addEventListener("click", async () => {
+  const file = fileInput.files[0];
+  if (!file) return alert("Please upload a resume.");
+
+  document.getElementById("statusMessage").textContent = "Parsing file...";
+  const text = await extractText(file);
+  await renderPDFPreview(file);
+
+  const { results, avgScore } = analyzeKeywords(text);
+  renderRadar(results);
+  buildMatrix(results);
+  displayMissingKeywords(results);
+  displaySuggestions(results);
+
+  scoreBar.style.width = `${avgScore}%`;
+  scoreText.textContent = `Overall Coverage: ${avgScore}%`;
+  summaryContainer.textContent = generateSummary(avgScore);
+
+  document.getElementById("analysisResults").style.display = "block";
+  document.getElementById("statusMessage").textContent = "Parsing complete!";
+});

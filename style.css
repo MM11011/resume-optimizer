@@ -1,125 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
+/* Base Styles */
 body {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  background: #f9fafb;
-  padding: 20px;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-h1, h2 {
-  color: #111827;
-}
-
-input, textarea, button {
-  width: 100%;
-  margin: 10px 0;
-  padding: 12px;
-  font-size: 16px;
-}
-
-textarea {
-  resize: vertical;
-}
-
-button {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #1d4ed8;
-}
-
-.status {
-  margin-top: 10px;
-  color: green;
-}
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-.cards-grid div {
-  background-color: #f3f4f6;
-  border-radius: 10px;
-  padding: 20px;
-  border: 1px solid #d1d5db;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background-color: #e5e7eb;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 20px 0;
-}
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+    margin: 0;
+    padding: 2rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
   
-  .progress-fill {
-    background-color: #10b981;
-    height: 100%;
-    width: 0%;
-    display: block;
-    transition: width 0.8s ease-in-out;
-}
+  h1, h2 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
   
-.overall-badge {
-  background-color: #10b981;
-  color: white;
-  padding: 10px 20px;
-  font-size: 24px;
-  border-radius: 9999px;
-  display: inline-block;
-}
-
-.score-container {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.hidden {
-  display: none;
-}
-
-select#frameworkSelect {
-    width: 100%;
-    padding: 10px;
-    margin: 15px 0;
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
-    font-size: 16px;
-    background-color: white;
-}
-  
-/* Toggle Switch */
-.toggle-container {
+  h2 {
+    margin-top: 2.5rem;
     display: flex;
     align-items: center;
-    margin: 15px 0;
+    gap: 0.5rem;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  label {
+    font-weight: 600;
+    display: block;
+    margin: 1rem 0 0.5rem;
+  }
+  
+  select, input[type="file"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .upload-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  
+  button {
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    font-size: 1rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #2563eb;
+  }
+  
+  #statusMessage {
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+  
+  /* Dark Mode */
+  .dark-mode {
+    background-color: #1e1f24;
+    color: #f9fafb;
+  }
+  
+  .dark-mode select,
+  .dark-mode input[type="file"] {
+    background-color: #2e2f36;
+    color: #f9fafb;
+    border: 1px solid #555;
+  }
+  
+  .dark-mode button {
+    background-color: #3b82f6;
+  }
+  
+  .dark-mode .score-bar {
+    background-color: #facc15;
+  }
+  
+  /* Toggle Switch */
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
   }
   
   .switch {
     position: relative;
     display: inline-block;
-    width: 50px;
+    width: 44px;
     height: 24px;
-    margin-right: 10px;
   }
   
   .switch input {
@@ -131,24 +114,22 @@ select#frameworkSelect {
   .slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
     background-color: #ccc;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 24px;
   }
   
   .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
     background-color: white;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 50%;
   }
   
@@ -157,169 +138,138 @@ select#frameworkSelect {
   }
   
   input:checked + .slider:before {
-    transform: translateX(26px);
+    transform: translateX(20px);
   }
   
-  .toggle-label {
-    font-weight: 600;
-    font-size: 16px;
+  /* Resume Preview & Chart */
+  .preview-analysis-wrapper {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
   }
   
-  /* Dark Mode Styles */
-  body.dark-mode {
-    background-color: #272c33;
-    color: #f3f4f6;
+  .preview-box, .chart-box {
+    flex: 1;
+    min-width: 350px;
+    background-color: #f3f4f6;
+    border-radius: 10px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
   }
   
-  body.dark-mode .container {
-    background-color: #34383f;
-    color: #f3f4f6;
+  .dark-mode .preview-box, .dark-mode .chart-box {
+    background-color: #2a2b31;
+    border: 1px solid #444;
   }
   
-  body.dark-mode input,
-  body.dark-mode select,
-  body.dark-mode textarea,
-  body.dark-mode button {
-    background-color: #73767a;
-    color: #f9fafb;
-    border: 1px solid #272c33;
-  }
-  
-  body.dark-mode .cards-grid div {
-    background-color: #73767a;
-    border-color: #272c33;
-  }
- 
-  body.dark-mode h1,
-  body.dark-mode h2,
-  body.dark-mode h3,
-  body.dark-mode strong,
-  body.dark-mode label {
-    color: #f3f4f6;
-  }
-   
-/* === Button Styling === */
-button {
-    padding: 10px 20px;
-    font-weight: 600;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #2563eb;
-  }
-  
-  /* Limit button width */
-  button,
-  #downloadButton {
-    display: inline-block;
-    width: auto;
-  }
-  
-  /* Center buttons in the container */
-  button#analyzeButton,
-  #downloadButton {
-    display: block;
-    margin: 10px auto;
-  }
-  
-  /* === File input cleanup === */
-  input[type="file"] {
-    width: auto;
-    padding: 6px;
-    background-color: transparent;
-    border: none;
-    color: inherit;
-    font-size: 14px;
-    margin-top: 10px;
-  }
-  
-  /* Optional: dark mode compatibility */
-  body.dark-mode input[type="file"] {
-    color: #f3f4f6;
-  }
- 
-  /* Score Section */
-.score-box {
-    text-align: center;
-    margin: 30px 0 20px;
-  }
-  
-  .score-label {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
+  /* Score Progress */
+  .score-box {
+    margin-top: 2rem;
   }
   
   .score-bar-wrapper {
     width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
     background-color: #e5e7eb;
-    border-radius: 8px;
-    height: 20px;
+    border-radius: 10px;
     overflow: hidden;
+    height: 20px;
   }
   
   .score-bar {
     height: 100%;
     width: 0%;
-    transition: width 0.6s ease-in-out;
-    background-color: #10b981; /* Default: green */
+    transition: width 0.5s;
+    background-color: #3b82f6;
   }
   
   .score-text {
-    margin-top: 8px;
-    font-size: 16px;
-    font-weight: 500;
+    margin-top: 0.5rem;
+    font-weight: 600;
   }
   
-  /* Dark Mode override */
-  body.dark-mode .score-bar-wrapper {
-    background-color: #4b5563;
+  /* Matrix Table */
+  .matrix-box {
+    margin-top: 2rem;
+    overflow-x: auto;
   }
   
-  body.dark-mode .score-text,
-  body.dark-mode .score-label {
-    color: #f3f4f6;
-  }
- 
-/* === Dark Mode Select Fix === */
-body.dark-mode select#frameworkSelect {
-    background-color: #4b5563;
-    color: #f3f4f6;
-    border: 1px solid #6b7280;
+  #skillsMatrix {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
   }
   
-  /* Also fix focus ring */
-  body.dark-mode select#frameworkSelect:focus {
-    outline: 2px solid #3b82f6;
+  #skillsMatrix th, #skillsMatrix td {
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    text-align: left;
   }
   
-  /* Optional: dropdown arrow contrast */
-  body.dark-mode select#frameworkSelect option {
-    background-color: #374151;
-    color: #f3f4f6;
+  .dark-mode #skillsMatrix th, .dark-mode #skillsMatrix td {
+    border: 1px solid #444;
   }
-
-  .chart-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
+  
+  /* Domain Keywords */
+  .cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  
+  .cards-grid > div {
+    flex: 1;
+    min-width: 280px;
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .dark-mode .cards-grid > div {
+    background-color: #2e2f36;
+    border: 1px solid #444;
+  }
+  
+  /* Suggestions */
+  .suggestions-container {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .suggestion-card {
     background-color: #f9fafb;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
   }
   
-  body.dark-mode .chart-container {
-    background-color: #374151;
+  .suggestion-card h3 {
+    margin-top: 0;
   }
   
-
+  .dark-mode .suggestion-card {
+    background-color: #2e2f36;
+    border: 1px solid #444;
+  }
+  
+  .text-preview {
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  
+  .dark-mode .text-preview {
+    background-color: #2e2f36;
+  }
+  
+  
   
