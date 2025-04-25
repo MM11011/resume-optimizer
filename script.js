@@ -1,4 +1,4 @@
-// Keyword library organized by domain categories
+// All keywords organized by domain
 const domainKeywords = {
     "Authentication & Authorization": [
       "Multi-Factor Authentication", "Single Sign-On", "Identity Federation", "OAuth 2.0", "SAML",
@@ -31,59 +31,91 @@ const domainKeywords = {
     ]
   };
   
+  // Mapping of which domains align with each framework
+  const frameworkDomainsMap = {
+    "NIST 800-53": [
+      "Authentication & Authorization",
+      "Data Protection & Privacy",
+      "Risk Management & Governance",
+      "Security Operations & Monitoring",
+      "Compliance Frameworks",
+      "Integration Security"
+    ],
+    "HIPAA": [
+      "Data Protection & Privacy",
+      "Risk Management & Governance",
+      "Compliance Frameworks"
+    ],
+    "ISO 27001": [
+      "Authentication & Authorization",
+      "Data Protection & Privacy",
+      "Risk Management & Governance",
+      "Security Operations & Monitoring",
+      "Compliance Frameworks"
+    ],
+    "SOC 2": [
+      "Authentication & Authorization",
+      "Risk Management & Governance",
+      "Security Operations & Monitoring",
+      "Compliance Frameworks"
+    ],
+    "GDPR": [
+      "Data Protection & Privacy",
+      "Compliance Frameworks"
+    ],
+    "PCI-DSS": [
+      "Authentication & Authorization",
+      "Data Protection & Privacy",
+      "Integration Security",
+      "Compliance Frameworks"
+    ]
+  };
+  
   let resumeText = "";
   
-  document.getElementById('fileInput').addEventListener('change', function(event) {
+  document.getElementById('fileInput').addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (!file) return;
   
     document.getElementById('statusMessage').textContent = "Parsing file...";
   
-    if (file.name.endsWith('.docx')) {
-      file.arrayBuffer().then(buffer => {
-        mammoth.extractRawText({ arrayBuffer: buffer })
-          .then(result => {
-            resumeText = result.value;
-            afterParsing();
-          })
-          .catch(err => alert('Error parsing DOCX: ' + err.message));
-      });
-    } else if (file.name.endsWith('.pdf')) {
-      const fileReader = new FileReader();
-      fileReader.onload = function() {
-        const typedarray = new Uint8Array(this.result);
-        pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-          let totalText = '';
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (ext === "txt") {
+        resumeText = e.target.result;
+        afterParsing();
+      } else if (ext === "docx") {
+        mammoth.extractRawText({ arrayBuffer: e.target.result }).then(result => {
+          resumeText = result.value;
+          afterParsing();
+        });
+      } else if (ext === "pdf") {
+        const typedarray = new Uint8Array(e.target.result);
+        pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+          let totalText = "";
           const maxPages = pdf.numPages;
           let pagePromises = [];
-  
-          for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+          for (let i = 1; i <= maxPages; i++) {
             pagePromises.push(
-              pdf.getPage(pageNum).then(function(page) {
-                return page.getTextContent().then(function(textContent) {
-                  const pageText = textContent.items.map(item => item.str).join(' ');
-                  totalText += pageText + ' ';
-                });
-              })
+              pdf.getPage(i).then(page =>
+                page.getTextContent().then(tc =>
+                  tc.items.map(item => item.str).join(" ")
+                )
+              )
             );
           }
-  
-          Promise.all(pagePromises).then(function() {
-            resumeText = totalText;
+          Promise.all(pagePromises).then(pages => {
+            resumeText = pages.join(" ");
             afterParsing();
           });
         });
-      };
-      fileReader.readAsArrayBuffer(file);
-    } else if (file.name.endsWith('.txt')) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        resumeText = e.target.result;
-        afterParsing();
-      };
-      reader.readAsText(file);
+      }
+    };
+    if (file.name.endsWith(".docx") || file.name.endsWith(".pdf")) {
+      reader.readAsArrayBuffer(file);
     } else {
-      alert('Unsupported file type. Please upload a .docx, .pdf, or .txt file.');
+      reader.readAsText(file);
     }
   });
   
@@ -93,7 +125,7 @@ const domainKeywords = {
     document.getElementById('suggestions').value = '';
   }
   
-  document.getElementById('analyzeButton').addEventListener('click', function() {
+  document.getElementById('analyzeButton').addEventListener('click', function () {
     if (!resumeText) {
       alert("Please upload and parse a resume first!");
       return;
@@ -102,57 +134,59 @@ const domainKeywords = {
     const missingList = document.getElementById('missingKeywords');
     missingList.innerHTML = '';
   
+    const selectedFramework = document.getElementById('frameworkSelect').value.trim();
+  
     let allSuggestions = [];
   
     Object.entries(domainKeywords).forEach(([domain, keywords]) => {
+      // If framework is selected, skip domains not in the mapping
+      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
+        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return;
+      }
+  
       const domainSection = document.createElement('div');
       domainSection.innerHTML = `<h3>${domain}</h3>`;
-      const ul = document.createElement('ul');
   
-      const foundKeywords = keywords.filter(word => resumeText.toLowerCase().includes(word.toLowerCase()));
+      const foundKeywords = keywords.filter(word =>
+        resumeText.toLowerCase().includes(word.toLowerCase())
+      );
       const missingKeywords = keywords.filter(word => !foundKeywords.includes(word));
   
+      const ul = document.createElement('ul');
       missingKeywords.forEach(word => {
         const li = document.createElement('li');
         li.textContent = word;
         ul.appendChild(li);
-  
-        const randomSuggestion = generateSuggestion(word, domain);
-        allSuggestions.push(randomSuggestion);
+        allSuggestions.push(generateSuggestion(word, domain));
       });
   
-      if (missingKeywords.length > 0) {
-        domainSection.appendChild(ul);
-        missingList.appendChild(domainSection);
-        missingList.appendChild(document.createElement('hr'));
-      }
+      domainSection.appendChild(ul);
+      missingList.appendChild(domainSection);
+      missingList.appendChild(document.createElement('hr'));
     });
   
     document.getElementById('suggestions').value = allSuggestions.join("\n");
   });
   
   function generateSuggestion(keyword, domain) {
-    const templates = [
-      `Demonstrated expertise in ${keyword} to advance ${domain} initiatives.`,
-      `Developed and implemented controls related to ${keyword} within ${domain} practices.`,
-      `Strengthened organizational posture through ${keyword} in the area of ${domain}.`,
-      `Executed initiatives enhancing ${keyword} for improved ${domain} outcomes.`,
-      `Led assessments and improvements in ${keyword} aligned with ${domain} best practices.`
-    ];
-    return templates[Math.floor(Math.random() * templates.length)];
+    return `Strengthened ${keyword} practices to support ${domain} initiatives.`;
   }
   
-  document.getElementById('downloadButton').addEventListener('click', function() {
-    const textToSave = document.getElementById('suggestions').value;
-    if (!textToSave) {
+  document.getElementById('downloadButton').addEventListener('click', function () {
+    const text = document.getElementById('suggestions').value;
+    if (!text) {
       alert("No suggestions to download yet!");
       return;
     }
-    const blob = new Blob([textToSave], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `resume_suggestions_deep.txt`;
+    link.download = `resume_suggestions.txt`;
     link.click();
   });
+  
+  
+  
+  
   
   
