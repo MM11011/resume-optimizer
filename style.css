@@ -107,7 +107,97 @@ select#frameworkSelect {
     background-color: white;
 }
   
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+  }
   
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-right: 10px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #10b981;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+  
+  .toggle-label {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  /* Dark Mode Styles */
+  body.dark-mode {
+    background-color: #272c33;
+    color: #f3f4f6;
+  }
+  
+  body.dark-mode .container {
+    background-color: #34383f;
+    color: #f3f4f6;
+  }
+  
+  body.dark-mode input,
+  body.dark-mode select,
+  body.dark-mode textarea,
+  body.dark-mode button {
+    background-color: #73767a;
+    color: #f9fafb;
+    border: 1px solid #272c33;
+  }
+  
+  body.dark-mode .cards-grid div {
+    background-color: #73767a;
+    border-color: #272c33;
+  }
+ 
+  body.dark-mode h1,
+  body.dark-mode h2,
+  body.dark-mode h3,
+  body.dark-mode strong,
+  body.dark-mode label {
+    color: #f3f4f6;
+  }
+   
 
 
   

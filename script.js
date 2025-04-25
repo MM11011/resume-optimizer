@@ -169,8 +169,57 @@ const domainKeywords = {
   });
   
   function generateSuggestion(keyword, domain) {
-    return `Strengthened ${keyword} practices to support ${domain} initiatives.`;
+    const templates = {
+      "Authentication & Authorization": [
+        `Led implementation of ${keyword} to enforce secure access across the enterprise.`,
+        `Improved ${keyword} processes to support zero trust and role-based access models.`,
+        `Integrated ${keyword} into IAM controls to enhance system security.`,
+        `Developed secure ${keyword} mechanisms aligned with authentication best practices.`,
+        `Enhanced identity assurance via ${keyword} within federated systems.`
+      ],
+      "Data Protection & Privacy": [
+        `Implemented ${keyword} to strengthen sensitive data handling practices.`,
+        `Conducted privacy impact assessments involving ${keyword} across business units.`,
+        `Improved encryption posture using ${keyword} techniques for data at rest and in transit.`,
+        `Aligned ${keyword} strategy with HIPAA/GDPR compliance goals.`,
+        `Assessed and upgraded ${keyword} controls to reduce risk of data exposure.`
+      ],
+      "Risk Management & Governance": [
+        `Performed enterprise-level assessments involving ${keyword} to support compliance readiness.`,
+        `Built governance workflows incorporating ${keyword} to manage risk effectively.`,
+        `Developed internal audit controls linked to ${keyword} for policy enforcement.`,
+        `Created scalable documentation supporting ${keyword} adoption across teams.`,
+        `Established controls around ${keyword} to support continuous compliance monitoring.`
+      ],
+      "Security Operations & Monitoring": [
+        `Integrated ${keyword} with security monitoring infrastructure to support incident response.`,
+        `Improved threat visibility by embedding ${keyword} into SOC workflows.`,
+        `Leveraged ${keyword} to detect anomalies and respond to security events in real-time.`,
+        `Configured ${keyword} within SIEM platform to enhance alerting precision.`,
+        `Evaluated ${keyword} coverage to close detection gaps in production environments.`
+      ],
+      "Compliance Frameworks": [
+        `Mapped ${keyword} controls to compliance objectives across frameworks like NIST, ISO, SOC 2.`,
+        `Integrated ${keyword} into readiness assessment programs and audit prep.`,
+        `Correlated ${keyword} efforts with evidence collection for annual audits.`,
+        `Reviewed ${keyword} control maturity against regulatory frameworks.`,
+        `Contributed to audit success by validating ${keyword} alignment with policy standards.`
+      ],
+      "Integration Security": [
+        `Secured APIs and systems through hardened ${keyword} design patterns.`,
+        `Validated ${keyword} to prevent cross-domain vulnerabilities during integration.`,
+        `Applied ${keyword} practices to support secure cloud-to-cloud communication.`,
+        `Assessed integration points for weaknesses in ${keyword} configurations.`,
+        `Established encryption and access policies governing ${keyword} pathways.`
+      ]
+    };
+  
+    const options = templates[domain] || [
+      `Applied ${keyword} within ${domain} to improve security maturity.`
+    ];
+    return options[Math.floor(Math.random() * options.length)];
   }
+  
   
   document.getElementById('downloadButton').addEventListener('click', function () {
     const text = document.getElementById('suggestions').value;
@@ -185,7 +234,11 @@ const domainKeywords = {
     link.click();
   });
   
-  
+ // Dark Mode Toggle
+  document.getElementById('darkModeToggle').addEventListener('change', function () {
+    document.body.classList.toggle('dark-mode', this.checked);
+  });
+   
   
   
   
