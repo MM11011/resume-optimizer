@@ -44,6 +44,22 @@ This tool aims to **level the playing field** by using automation and best pract
 
 ---
 
+## 🚀 Version 2.0 Roadmap
+
+- [ ] Dynamic Resume Health Scoring
+- [ ] Category Strength Visualization
+- [ ] Expanded Keyword Libraries (Cloud, Privacy, DevSecOps)
+- [ ] AI-Powered Suggestion Rewrites
+- [ ] Framework-Specific Targeting (NIST, HIPAA, SOC 2 focus)
+- [ ] Dark Mode UI Toggle
+- [ ] Responsive Mobile Layout
+- [ ] Animated Progress Bars
+- [ ] Visual Resume Heatmap (Stretch Goal)
+- [ ] SEO Optimization for GitHub Pages
+- [ ] Social Sharing OpenGraph Images
+- [ ] Demo Video Walkthrough
+
+
 ## 📜 License
 
 This project is open-source and available under the MIT License.
