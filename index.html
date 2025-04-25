@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prompt Injection Resume Optimizer</title>
+  <title>Resume Keyword Optimizer</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -46,6 +46,16 @@
     <div id="statusMessage"></div>
 
     <hr>
+
+    <!-- Health Score Section -->
+  <div id="scoreContainer" class="score-box" style="display:none;">
+    <div class="score-label">Resume Health Score:</div>
+    <div class="score-bar-wrapper">
+      <div id="scoreBar" class="score-bar"></div>
+    </div>
+    <div id="scoreText" class="score-text"></div>
+  </div>
+  
 
     <h2>🧩 Missing Keywords by Domain</h2>
     <div id="missingKeywords" class="cards-grid"></div>

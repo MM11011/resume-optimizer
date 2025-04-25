@@ -163,6 +163,50 @@ const domainKeywords = {
       domainSection.appendChild(ul);
       missingList.appendChild(domainSection);
       missingList.appendChild(document.createElement('hr'));
+
+      // === Health Score Calculation ===
+const totalKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
+  if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
+    if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
+  }
+  return sum + keywords.length;
+}, 0);
+
+const matchedKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
+  if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
+    if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
+  }
+  const matches = keywords.filter(word => resumeText.toLowerCase().includes(word.toLowerCase()));
+  return sum + matches.length;
+}, 0);
+
+const scorePercent = Math.round((matchedKeywords / totalKeywords) * 100);
+
+// Update Score UI
+const scoreBar = document.getElementById('scoreBar');
+const scoreText = document.getElementById('scoreText');
+const scoreContainer = document.getElementById('scoreContainer');
+
+scoreContainer.style.display = "block";
+scoreBar.style.width = `${scorePercent}%`;
+
+let scoreLabel = "Needs Work";
+let scoreColor = "#ef4444"; // red
+
+if (scorePercent >= 80) {
+  scoreLabel = "Excellent";
+  scoreColor = "#10b981"; // green
+} else if (scorePercent >= 50) {
+  scoreLabel = "Good";
+  scoreColor = "#facc15"; // yellow
+} else if (scorePercent >= 30) {
+  scoreLabel = "Fair";
+  scoreColor = "#f97316"; // orange
+}
+
+scoreBar.style.backgroundColor = scoreColor;
+scoreText.textContent = `${scorePercent}% match – ${scoreLabel}`;
+
     });
   
     document.getElementById('suggestions').value = allSuggestions.join("\n");
