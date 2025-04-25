@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resume Keyword Optimizer</title>
+
+  <!-- Clean, modern font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Your styling -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Parsing libraries -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>🔍 Resume Optimizer</h1>
+
+    <div class="upload-section">
+      <input type="file" id="fileInput" accept=".docx,.pdf,.txt">
+      <button id="analyzeButton">Analyze Resume</button>
+    </div>
+
+    <div id="statusMessage" class="status"></div>
+
+    <div id="scoreBadge" class="score-badge hidden">0%</div>
+
+    <hr>
+
+    <div id="resultsArea">
+      <h2>🧩 Missing Keywords by Domain</h2>
+      <div id="missingKeywords" class="cards-grid"></div>
+    </div>
+
+    <hr>
+
+    <div id="suggestionsArea">
+      <h2>🛠️ Suggested Enhancements</h2>
+      <textarea id="suggestions" rows="12" cols="50" placeholder="Suggestions will appear here after analysis..."></textarea>
+      <button id="downloadButton">Download Suggestions</button>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
