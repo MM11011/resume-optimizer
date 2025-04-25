@@ -1,4 +1,3 @@
-// All keywords organized by domain
 const domainKeywords = {
     "Authentication & Authorization": [
       "Multi-Factor Authentication", "Single Sign-On", "Identity Federation", "OAuth 2.0", "SAML",
@@ -31,47 +30,17 @@ const domainKeywords = {
     ]
   };
   
-  // Mapping of which domains align with each framework
   const frameworkDomainsMap = {
-    "NIST 800-53": [
-      "Authentication & Authorization",
-      "Data Protection & Privacy",
-      "Risk Management & Governance",
-      "Security Operations & Monitoring",
-      "Compliance Frameworks",
-      "Integration Security"
-    ],
-    "HIPAA": [
-      "Data Protection & Privacy",
-      "Risk Management & Governance",
-      "Compliance Frameworks"
-    ],
-    "ISO 27001": [
-      "Authentication & Authorization",
-      "Data Protection & Privacy",
-      "Risk Management & Governance",
-      "Security Operations & Monitoring",
-      "Compliance Frameworks"
-    ],
-    "SOC 2": [
-      "Authentication & Authorization",
-      "Risk Management & Governance",
-      "Security Operations & Monitoring",
-      "Compliance Frameworks"
-    ],
-    "GDPR": [
-      "Data Protection & Privacy",
-      "Compliance Frameworks"
-    ],
-    "PCI-DSS": [
-      "Authentication & Authorization",
-      "Data Protection & Privacy",
-      "Integration Security",
-      "Compliance Frameworks"
-    ]
+    "NIST 800-53": ["Authentication & Authorization", "Data Protection & Privacy", "Risk Management & Governance", "Security Operations & Monitoring", "Compliance Frameworks", "Integration Security"],
+    "HIPAA": ["Data Protection & Privacy", "Risk Management & Governance", "Compliance Frameworks"],
+    "ISO 27001": ["Authentication & Authorization", "Data Protection & Privacy", "Risk Management & Governance", "Security Operations & Monitoring", "Compliance Frameworks"],
+    "SOC 2": ["Authentication & Authorization", "Risk Management & Governance", "Security Operations & Monitoring", "Compliance Frameworks"],
+    "GDPR": ["Data Protection & Privacy", "Compliance Frameworks"],
+    "PCI-DSS": ["Authentication & Authorization", "Data Protection & Privacy", "Integration Security", "Compliance Frameworks"]
   };
   
   let resumeText = "";
+  let radarChart = null;
   
   document.getElementById('fileInput').addEventListener('change', function (event) {
     const file = event.target.files[0];
@@ -93,10 +62,8 @@ const domainKeywords = {
       } else if (ext === "pdf") {
         const typedarray = new Uint8Array(e.target.result);
         pdfjsLib.getDocument(typedarray).promise.then(pdf => {
-          let totalText = "";
-          const maxPages = pdf.numPages;
-          let pagePromises = [];
-          for (let i = 1; i <= maxPages; i++) {
+          const pagePromises = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
             pagePromises.push(
               pdf.getPage(i).then(page =>
                 page.getTextContent().then(tc =>
@@ -131,15 +98,12 @@ const domainKeywords = {
       return;
     }
   
+    const selectedFramework = document.getElementById('frameworkSelect').value.trim();
     const missingList = document.getElementById('missingKeywords');
     missingList.innerHTML = '';
-  
-    const selectedFramework = document.getElementById('frameworkSelect').value.trim();
-  
     let allSuggestions = [];
   
     Object.entries(domainKeywords).forEach(([domain, keywords]) => {
-      // If framework is selected, skip domains not in the mapping
       if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
         if (!frameworkDomainsMap[selectedFramework].includes(domain)) return;
       }
@@ -163,53 +127,110 @@ const domainKeywords = {
       domainSection.appendChild(ul);
       missingList.appendChild(domainSection);
       missingList.appendChild(document.createElement('hr'));
-
-      // === Health Score Calculation ===
-const totalKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
-  if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
-    if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
-  }
-  return sum + keywords.length;
-}, 0);
-
-const matchedKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
-  if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
-    if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
-  }
-  const matches = keywords.filter(word => resumeText.toLowerCase().includes(word.toLowerCase()));
-  return sum + matches.length;
-}, 0);
-
-const scorePercent = Math.round((matchedKeywords / totalKeywords) * 100);
-
-// Update Score UI
-const scoreBar = document.getElementById('scoreBar');
-const scoreText = document.getElementById('scoreText');
-const scoreContainer = document.getElementById('scoreContainer');
-
-scoreContainer.style.display = "block";
-scoreBar.style.width = `${scorePercent}%`;
-
-let scoreLabel = "Needs Work";
-let scoreColor = "#ef4444"; // red
-
-if (scorePercent >= 80) {
-  scoreLabel = "Excellent";
-  scoreColor = "#10b981"; // green
-} else if (scorePercent >= 50) {
-  scoreLabel = "Good";
-  scoreColor = "#facc15"; // yellow
-} else if (scorePercent >= 30) {
-  scoreLabel = "Fair";
-  scoreColor = "#f97316"; // orange
-}
-
-scoreBar.style.backgroundColor = scoreColor;
-scoreText.textContent = `${scorePercent}% match – ${scoreLabel}`;
-
     });
   
     document.getElementById('suggestions').value = allSuggestions.join("\n");
+  
+    // === Resume Health Score Calculation ===
+    const totalKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
+      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
+        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
+      }
+      return sum + keywords.length;
+    }, 0);
+  
+    const matchedKeywords = Object.entries(domainKeywords).reduce((sum, [domain, keywords]) => {
+      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
+        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return sum;
+      }
+      const matches = keywords.filter(word => resumeText.toLowerCase().includes(word.toLowerCase()));
+      return sum + matches.length;
+    }, 0);
+  
+    const scorePercent = Math.round((matchedKeywords / totalKeywords) * 100);
+  
+    const scoreBar = document.getElementById('scoreBar');
+    const scoreText = document.getElementById('scoreText');
+    const scoreContainer = document.getElementById('scoreContainer');
+  
+    scoreContainer.style.display = "block";
+    scoreBar.style.width = `${scorePercent}%`;
+  
+    let scoreLabel = "Needs Work";
+    let scoreColor = "#ef4444";
+  
+    if (scorePercent >= 80) {
+      scoreLabel = "Excellent";
+      scoreColor = "#10b981";
+    } else if (scorePercent >= 50) {
+      scoreLabel = "Good";
+      scoreColor = "#facc15";
+    } else if (scorePercent >= 30) {
+      scoreLabel = "Fair";
+      scoreColor = "#f97316";
+    }
+  
+    scoreBar.style.backgroundColor = scoreColor;
+    scoreText.textContent = `${scorePercent}% match – ${scoreLabel}`;
+  
+    // === Radar Chart: Domain Coverage Visualization ===
+    const chartContainer = document.getElementById("chartContainer");
+    const ctx = document.getElementById("radarChart").getContext("2d");
+  
+    const labels = [];
+    const dataPoints = [];
+  
+    Object.entries(domainKeywords).forEach(([domain, keywords]) => {
+      if (selectedFramework && frameworkDomainsMap[selectedFramework]) {
+        if (!frameworkDomainsMap[selectedFramework].includes(domain)) return;
+      }
+  
+      labels.push(domain);
+      const matches = keywords.filter(word =>
+        resumeText.toLowerCase().includes(word.toLowerCase())
+      );
+      const percent = Math.round((matches.length / keywords.length) * 100);
+      dataPoints.push(percent);
+    });
+  
+    if (radarChart) radarChart.destroy();
+  
+    radarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Keyword Match %',
+          data: dataPoints,
+          fill: true,
+          backgroundColor: 'rgba(59, 130, 246, 0.2)',
+          borderColor: '#3b82f6',
+          pointBackgroundColor: '#3b82f6'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            angleLines: { color: '#cbd5e1' },
+            grid: { color: '#e2e8f0' },
+            suggestedMin: 0,
+            suggestedMax: 100,
+            pointLabels: {
+              color: document.body.classList.contains('dark-mode') ? '#f3f4f6' : '#111827'
+            },
+            ticks: {
+              color: document.body.classList.contains('dark-mode') ? '#f3f4f6' : '#111827'
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  
+    chartContainer.style.display = "block";
   });
   
   function generateSuggestion(keyword, domain) {
@@ -264,25 +285,10 @@ scoreText.textContent = `${scorePercent}% match – ${scoreLabel}`;
     return options[Math.floor(Math.random() * options.length)];
   }
   
-  
-  document.getElementById('downloadButton').addEventListener('click', function () {
-    const text = document.getElementById('suggestions').value;
-    if (!text) {
-      alert("No suggestions to download yet!");
-      return;
-    }
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `resume_suggestions.txt`;
-    link.click();
-  });
-  
- // Dark Mode Toggle
+  // Dark Mode Toggle
   document.getElementById('darkModeToggle').addEventListener('change', function () {
     document.body.classList.toggle('dark-mode', this.checked);
   });
-   
   
   
   

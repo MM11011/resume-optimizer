@@ -11,6 +11,7 @@
   <!-- Resume parsing libraries -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -55,6 +56,13 @@
     </div>
     <div id="scoreText" class="score-text"></div>
   </div>
+
+  <!-- Radar Chart -->
+ <div class="chart-container" id="chartContainer" style="display: none;">
+    <h2>📊 Skill Domain Coverage</h2>
+    <canvas id="radarChart" width="400" height="400"></canvas>
+  </div>
+  
   
 
     <h2>🧩 Missing Keywords by Domain</h2>

@@ -307,6 +307,19 @@ body.dark-mode select#frameworkSelect {
     background-color: #374151;
     color: #f3f4f6;
   }
-    
+
+  .chart-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  
+  body.dark-mode .chart-container {
+    background-color: #374151;
+  }
+  
 
   
