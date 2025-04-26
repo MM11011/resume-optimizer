@@ -270,6 +270,108 @@ body {
   .dark-mode .text-preview {
     background-color: #2e2f36;
   }
+
+  .intro-section {
+    background: var(--card-bg, #f6f6f6);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
   
+  .intro-section h2 {
+    margin-top: 0;
+    font-size: 2rem;
+    text-align: center;
+  }
   
+  .intro-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
   
+  .intro-card {
+    flex: 1 1 calc(33% - 1.5rem);
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .intro-card h3 {
+    margin-top: 0;
+    font-size: 1.25rem;
+  }
+  
+  .intro-card p,
+  .intro-card ul {
+    font-size: 0.95rem;
+    margin-top: 0.75rem;
+    line-height: 1.6;
+  }
+  
+  .intro-card ul {
+    padding-left: 1.25rem;
+  }
+
+/* Fix intro text for dark mode */
+body.dark-mode .intro-section {
+    color: #eaeaea;
+  }
+  
+  body.dark-mode .intro-section h2,
+  body.dark-mode .intro-section h3 {
+    color: #ffffff;
+  }
+  
+  body.dark-mode .intro-card {
+    background-color: #2e2e2e;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .intro-card ul li {
+    color: #d6d6d6;
+  }
+ 
+/* Fix for header text inside the intro section in dark mode */
+body.dark-mode .intro-section h1,
+body.dark-mode .intro-section h2,
+body.dark-mode .intro-section h3 {
+  color: #ffffff;
+  
+}
+
+body.dark-mode .intro-section p {
+  color: #dcdcdc;
+}
+
+body.dark-mode .intro-section {
+  color: #e0e0e0;
+}
+
+/* Fix visibility of intro header and subheader in dark mode */
+body.dark-mode .intro-section h1 {
+    color: #0e0d0d !important;
+  }
+  
+  body.dark-mode .intro-section h2 {
+    color: #0e0d0d !important;
+  }
+
+  
+  body.dark-mode .intro-section p {
+    color: #dddddd;
+  }
+  
+ /* Fix for header visibility in dark mode */
+.dark-mode h1,
+.dark-mode .subheading {
+  color: #f9fafb !important;
+}
+ 
+.intro-section p {
+    color: black;
+}  

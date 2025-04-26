@@ -16,8 +16,6 @@
 <body>
   <div class="container">
 
-    <h1>🔍 Resume Optimizer</h1>
-
     <!-- Dark Mode Toggle -->
     <div class="toggle-container">
       <label class="switch">
@@ -26,6 +24,37 @@
       </label>
       <span class="toggle-label">Dark Mode</span>
     </div>
+
+    <!-- ✨ New Intro Section -->
+    <section class="intro-section">
+      <h2>Welcome to the Resume Optimizer 🔍</h2>
+
+      <div class="intro-grid">
+        <div class="intro-card">
+          <p>This tool is designed to help you enhance your resume using smart keyword analysis and compliance framework alignment.</p>
+        </div>
+
+        <div class="intro-card">
+          <h3>🎯 Why Keywords Matter</h3>
+          <p>Modern recruiting systems (ATS) scan resumes for specific keywords that match job requirements. Missing critical keywords can cause your resume to be filtered out — even if you're qualified. This tool analyzes your uploaded resume and highlights important security-related keywords that could improve your visibility.</p>
+        </div>
+
+        <div class="intro-card">
+          <h3>⚙️ Framework Selection</h3>
+          <p>Selecting a security compliance framework (like NIST 800-53, ISO 27001, or SOC 2) tailors the keyword analysis to emphasize that framework's requirements. If you plan to apply for roles that reference specific standards, selecting the right framework helps optimize your resume to align with those expectations.</p>
+        </div>
+
+        <div class="intro-card">
+          <h3>🚀 How to Use</h3>
+          <ul>
+            <li>1. (Optional) Select a compliance framework from the dropdown.</li>
+            <li>2. Upload your resume file (.docx, .pdf, or .txt).</li>
+            <li>3. Click "Analyze Resume" to generate your personalized skill matrix and smart suggestions.</li>
+            <li>4. Use the highlighted missing keywords and enhancement suggestions to update your resume strategically!</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
     <!-- Framework Selection -->
     <label for="frameworkSelect"><strong>Select Framework (Optional):</strong></label>
@@ -56,7 +85,6 @@
     <div id="analysisResults" style="display:none;">
 
       <div class="preview-analysis-wrapper">
-
         <!-- Side-by-side Preview and Chart -->
         <div class="preview-box">
           <h2>📄 Uploaded Resume Preview</h2>
@@ -68,7 +96,6 @@
           <h2>📊 Skill Domain Coverage</h2>
           <canvas id="radarChart" width="400" height="400"></canvas>
         </div>
-
       </div>
 
       <!-- Health Score -->
@@ -117,6 +144,8 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
