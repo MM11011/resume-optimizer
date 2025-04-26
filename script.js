@@ -119,16 +119,37 @@ analyzeButton.addEventListener('click', () => {
     missingKeywords.appendChild(container);
   });
 
+  // SMARTER SUGGESTIONS BELOW:
   suggestionsContainer.innerHTML = '';
+
+  const actionVerbs = ["Implemented", "Engineered", "Established", "Led", "Developed", "Optimized", "Enhanced", "Integrated"];
+  const domainPhrases = {
+    "Authentication & Authorization": "strengthened authentication and authorization mechanisms",
+    "Data Protection & Privacy": "enhanced data protection and privacy controls",
+    "Risk Management & Governance": "advanced risk management and governance programs",
+    "Security Operations & Monitoring": "improved security operations and real-time monitoring capabilities",
+    "Compliance Frameworks": "ensured compliance with major regulatory frameworks",
+    "Integration Security": "secured system integrations and API communications"
+  };
+
   Object.entries(keywordResults).forEach(([domain, result]) => {
     const box = document.createElement('div');
     box.className = 'suggestion-box';
+    
     box.innerHTML = `
       <h3>${domain}</h3>
-      <ul>
-        ${result.unmatched.map(k => `<li>Consider adding: "${k}" to strengthen your ${domain.toLowerCase()} skills.</li>`).join('')}
-      </ul>
+      ${result.unmatched.length ? `
+        <p class="suggestion-header">Suggested Resume Enhancements:</p>
+        <ul>
+          ${result.unmatched.map(k => {
+            const verb = actionVerbs[Math.floor(Math.random() * actionVerbs.length)];
+            const phrase = domainPhrases[domain] || "enhanced technical controls";
+            return `<li>${verb} ${k} to ${phrase}.</li>`;
+          }).join('')}
+        </ul>
+      ` : `<p>No additional suggestions needed for this domain.</p>`}
     `;
+
     suggestionsContainer.appendChild(box);
   });
 
@@ -168,29 +189,17 @@ function generateRadarChart(data) {
       responsive: true,
       scales: {
         r: {
-          angleLines: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#888'
-          },
-          grid: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#888'
-          },
-          pointLabels: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#fff'
-          },
-          ticks: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#fff',
-            backdropColor: 'transparent'
-          }
+          angleLines: { color: '#ccc' },
+          grid: { color: '#888' },
+          pointLabels: { color: '#fff' },
+          ticks: { color: '#fff', backdropColor: 'transparent' }
         }
       },
       plugins: {
-        legend: {
-          labels: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#fff'
-          }
-        }
+        legend: { labels: { color: '#fff' } }
       }
     }
   });
 }
+
 
