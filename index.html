@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prompt Injection Resume Optimizer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resume Optimizer</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -12,138 +12,128 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
   <div class="container">
 
     <!-- Dark Mode Toggle -->
     <div class="toggle-container">
+      <span>🌞</span>
       <label class="switch">
         <input type="checkbox" id="darkModeToggle">
         <span class="slider"></span>
       </label>
-      <span class="toggle-label">Dark Mode</span>
+      <span>🌙</span>
     </div>
 
-    <!-- ✨ New Intro Section -->
+    <!-- Intro -->
     <section class="intro-section">
-      <h2>Welcome to the Resume Optimizer 🔍</h2>
-
+      <h1>Welcome to the Resume Optimizer 🔍</h1>
       <div class="intro-grid">
-        <div class="intro-card">
-          <p>This tool is designed to help you enhance your resume using smart keyword analysis and compliance framework alignment.</p>
+        <div class="intro-card full">
+          <p>Optimize your resume with targeted keyword analysis. Pick your field, upload your document, and get instant feedback on how well your resume aligns with industry-specific lingo.</p>
         </div>
-
         <div class="intro-card">
-          <h3>🎯 Why Keywords Matter</h3>
-          <p>Modern recruiting systems (ATS) scan resumes for specific keywords that match job requirements. Missing critical keywords can cause your resume to be filtered out — even if you're qualified. This tool analyzes your uploaded resume and highlights important security-related keywords that could improve your visibility.</p>
+          <h2>🎯 Why Keywords Matter</h2>
+          <p>Applicant Tracking Systems (ATS) automatically scan resumes for exact keywords. By matching the right terms, you drastically increase your chances of passing that first automated filter.</p>
         </div>
-
         <div class="intro-card">
-          <h3>⚙️ Framework Selection</h3>
-          <p>Selecting a security compliance framework (like NIST 800-53, ISO 27001, or SOC 2) tailors the keyword analysis to emphasize that framework's requirements. If you plan to apply for roles that reference specific standards, selecting the right framework helps optimize your resume to align with those expectations.</p>
+          <h2>🌐 Industry Selection</h2>
+          <p>Choose <strong>Cyber Security</strong>, <strong>Web Development</strong>, or <strong>Finance</strong> to tailor the analysis to the jargon recruiters expect in each field.</p>
         </div>
-
         <div class="intro-card">
-          <h3>🚀 How to Use</h3>
-          <ul>
-            <li>1. (Optional) Select a compliance framework from the dropdown.</li>
-            <li>2. Upload your resume file (.docx, .pdf, or .txt).</li>
-            <li>3. Click "Analyze Resume" to generate your personalized skill matrix and smart suggestions.</li>
-            <li>4. Use the highlighted missing keywords and enhancement suggestions to update your resume strategically!</li>
-          </ul>
+          <h2>🚀 How to Use</h2>
+          <ol>
+            <li>Select one of the three supported industries.</li>
+            <li>If you chose <em>Cyber Security</em>, pick a compliance framework (optional).</li>
+            <li>Upload your resume (.docx, .pdf or .txt).</li>
+            <li>Click “Analyze Resume” and review your personalized report:</li>
+            <ul>
+              <li>Overall Health Score</li>
+              <li>Detailed Skill Domain Coverage</li>
+              <li>Missing Keywords & Enhancement Suggestions</li>
+            </ul>
+          </ol>
         </div>
       </div>
     </section>
 
-    <!-- Framework Selection -->
-    <label for="frameworkSelect"><strong>Select Framework (Optional):</strong></label>
-    <select id="frameworkSelect">
-      <option value="">-- No Framework Selected --</option>
-      <option value="NIST 800-53">NIST 800-53</option>
-      <option value="HIPAA">HIPAA</option>
-      <option value="ISO 27001">ISO 27001</option>
-      <option value="SOC 2">SOC 2</option>
-      <option value="GDPR">GDPR</option>
-      <option value="PCI-DSS">PCI-DSS</option>
+    <!-- Controls -->
+    <label for="industrySelect">Industry</label>
+    <select id="industrySelect">
+      <option value="">‒ Select an industry ‒</option>
+      <option>Cyber Security</option>
+      <option>Web Development</option>
+      <option>Finance</option>
     </select>
 
-    <!-- File Upload -->
+    <div id="frameworkContainer" class="hidden">
+      <label for="frameworkSelect">Framework (Cyber Security)</label>
+      <select id="frameworkSelect">
+        <option value="">None</option>
+        <option>NIST 800-53</option>
+        <option>HIPAA</option>
+        <option>ISO 27001</option>
+        <option>SOC 2</option>
+        <option>GDPR</option>
+        <option>PCI-DSS</option>
+      </select>
+    </div>
+
     <div class="upload-controls">
       <input type="file" id="fileInput" accept=".docx,.pdf,.txt" />
       <button id="analyzeButton">Analyze Resume</button>
     </div>
     <div id="statusMessage"></div>
 
-    <!-- Resume Preview -->
-    <div id="resumePreview" style="display:none;">
-      <canvas id="pdfPreview" style="display:none;"></canvas>
-      <div id="textPreview" class="text-preview" style="display:none;"></div>
-    </div>
+    <!-- Results -->
+    <div id="analysisResults" class="hidden">
 
-    <!-- Analysis Results -->
-    <div id="analysisResults" style="display:none;">
-
-      <div class="preview-analysis-wrapper">
-        <!-- Side-by-side Preview and Chart -->
-        <div class="preview-box">
-          <h2>📄 Uploaded Resume Preview</h2>
-          <canvas id="pdfPreviewAnalysis" style="display:none;"></canvas>
-          <div id="textPreviewAnalysis" class="text-preview" style="display:none;"></div>
-        </div>
-
-        <div class="chart-box">
-          <h2>📊 Skill Domain Coverage</h2>
-          <canvas id="radarChart" width="400" height="400"></canvas>
-        </div>
+      <div class="chart-box">
+        <h2>📊 Skill Domain Coverage</h2>
+        <canvas id="radarChart"></canvas>
       </div>
 
-      <!-- Health Score -->
-      <div id="scoreContainer" class="score-box">
+      <div class="score-box">
         <h2>✅ Resume Health Score</h2>
-        <div class="score-bar-wrapper">
-          <div id="scoreBar" class="score-bar"></div>
-        </div>
+        <div class="score-bar-wrapper"><div id="scoreBar" class="score-bar"></div></div>
         <div id="scoreText" class="score-text"></div>
       </div>
 
-      <!-- Executive Summary -->
-      <div id="summaryContainer" class="summary-box">
+      <div class="summary-box">
         <h2>🧠 Executive Summary</h2>
         <p id="executiveSummary"></p>
+        <div id="detailedScores" class="detailed-scores"></div>
       </div>
 
-      <!-- Skills Matrix -->
-      <div id="matrixContainer" class="matrix-box">
+      <div class="matrix-box">
         <h2>📋 Skills Matrix</h2>
         <table id="skillsMatrix">
           <thead>
-            <tr>
-              <th>Domain</th>
-              <th>Match %</th>
-              <th>Rating</th>
-              <th>Frameworks</th>
-            </tr>
+            <tr><th>Domain</th><th>Match %</th><th>Rating</th><th>Keywords</th></tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
 
-      <!-- Missing Keywords by Domain -->
       <h2>🧩 Missing Keywords by Domain</h2>
       <div id="missingKeywords" class="cards-grid"></div>
 
-      <!-- Suggestions -->
       <h2>🛠️ Suggested Enhancements</h2>
-      <div class="cards-grid" id="suggestionsContainer"></div>
+      <div id="suggestionsContainer" class="cards-grid"></div>
 
     </div>
-
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 

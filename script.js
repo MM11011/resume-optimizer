@@ -1,205 +1,307 @@
-const fileInput = document.getElementById('fileInput');
-const analyzeButton = document.getElementById('analyzeButton');
-const frameworkSelect = document.getElementById('frameworkSelect');
-const radarChartCtx = document.getElementById('radarChart').getContext('2d');
-const previewCanvas = document.getElementById('pdfPreviewAnalysis');
-const previewText = document.getElementById('textPreviewAnalysis');
-const missingKeywords = document.getElementById('missingKeywords');
+// script.js
+
+// ─── DOM REFERENCES ─────────────────────────────────────────────────────────
+const industrySelect       = document.getElementById('industrySelect');
+const frameworkContainer   = document.getElementById('frameworkContainer');
+const frameworkSelect      = document.getElementById('frameworkSelect');
+const fileInput            = document.getElementById('fileInput');
+const analyzeButton        = document.getElementById('analyzeButton');
+const darkModeToggle       = document.getElementById('darkModeToggle');
+
+const scoreBar             = document.getElementById('scoreBar');
+const scoreText            = document.getElementById('scoreText');
+const summaryContainer     = document.getElementById('executiveSummary');
+const missingKeywords      = document.getElementById('missingKeywords');
 const suggestionsContainer = document.getElementById('suggestionsContainer');
-const summaryContainer = document.getElementById('executiveSummary');
-const scoreBar = document.getElementById('scoreBar');
-const scoreText = document.getElementById('scoreText');
-const matrixTable = document.getElementById('skillsMatrix').getElementsByTagName('tbody')[0];
-const darkModeToggle = document.getElementById('darkModeToggle');
+const matrixTableBody      = document
+  .getElementById('skillsMatrix')
+  .getElementsByTagName('tbody')[0];
 
-let resumeText = '';
-let radarInstance = null;
-let radarData = {};
+const radarCanvas          = document.getElementById('radarChart');
+const radarCtx             = radarCanvas.getContext('2d');
+let radarChart             = null;
 
+// ─── SKILL DOMAIN DEFINITIONS ───────────────────────────────────────────────
+// Three supported fields: Cyber Security, Web Development, Finance
 const skillDomains = {
-  "Authentication & Authorization": [
-    "Multi-Factor Authentication", "Single Sign-On", "OAuth 2.0", "SAML", "Zero Trust", "Identity Federation"
-  ],
-  "Data Protection & Privacy": [
-    "Data Encryption", "Field-Level Encryption", "Data Loss Prevention", "Privacy Impact Assessment", "Tokenization"
-  ],
-  "Risk Management & Governance": [
-    "Risk Assessment", "Compliance Audit", "Risk Mitigation", "Control Frameworks", "Third-Party Risk Management"
-  ],
-  "Security Operations & Monitoring": [
-    "Event Monitoring", "SIEM Integration", "Threat Detection", "Audit Logging", "Security Incident Response"
-  ],
-  "Compliance Frameworks": [
-    "NIST 800-53", "HIPAA", "ISO 27001", "SOC 2", "GDPR", "PCI-DSS"
-  ],
-  "Integration Security": [
-    "OAuth-secured APIs", "Secure Integration Patterns", "Cross-Domain Integration Risks", "Integration Authentication"
-  ]
+  "Cyber Security": {
+    "Authentication & Authorization": [
+      "Multi-Factor Authentication","Single Sign-On","OAuth 2.0","SAML",
+      "Zero Trust Architecture","Role-Based Access Control"
+    ],
+    "Data Protection & Privacy": [
+      "Data Encryption at Rest","Data Encryption in Transit",
+      "Tokenization","Data Loss Prevention","Privacy Impact Assessment"
+    ],
+    "Risk Management & Governance": [
+      "Risk Assessment","Vulnerability Management",
+      "Business Continuity Planning","Incident Response Planning"
+    ],
+    "Security Operations & Monitoring": [
+      "SIEM Integration","Threat Detection",
+      "Anomaly Detection","Incident Response"
+    ],
+    "Compliance Frameworks": [
+      "NIST 800-53","ISO 27001","SOC 2","GDPR","HIPAA"
+    ],
+    "Integration Security": [
+      "API Security","Secure Integration Patterns",
+      "Cross-Domain Integration Risks","OAuth-secured APIs"
+    ]
+  },
+  "Web Development": {
+    "Front-End": ["HTML5","CSS3","JavaScript","React","Angular","Vue.js"],
+    "Back-End":  ["Node.js","Express","Python","Django","REST API","SQL"],
+    "DevOps":    ["Docker","Kubernetes","CI/CD","Jenkins","AWS","Azure"]
+  },
+  "Finance": {
+    "Financial Analysis":   ["P&L","Forecasting","Variance Analysis","Excel Modeling","KPIs"],
+    "Data & Automation":    ["ETL","Python","Tableau","Snowflake","RPA","dbt"],
+    "Reporting & Compliance":["SOX","IFRS","GAAP","Audit","Close Process","Dashboards"]
+  }
 };
 
-darkModeToggle.addEventListener('change', () => {
-  document.body.classList.toggle('dark-mode', darkModeToggle.checked);
-  if (radarData && Object.keys(radarData).length) {
-    generateRadarChart(radarData);
+// ─── PROFESSIONAL SUGGESTIONS BANK ─────────────────────────────────────────
+const proSuggestions = {
+  cyber: {
+    "Authentication & Authorization": [
+      "Architected a Zero Trust framework leveraging SAML/OAuth2, reducing unauthorized access by 90%.",
+      "Led RBAC policy design to enforce least-privilege for 500+ users across multi-cloud."
+    ],
+    // …and so on for each cyber domain…
+  },
+  webdev: {
+    "Front-End": [
+      "Optimized React bundle via code-splitting, speeding load by 50%.",
+      "Built WCAG 2.1 AA accessible components, boosting usability."
+    ],
+    // …etc…
+  },
+  finance: {
+    "Financial Analysis": [
+      "Performed variance analysis on monthly P&L, uncovering 8% cost savings.",
+      "Built dynamic Excel models with macros for scenario planning."
+    ],
+    // …etc…
   }
-});
+};
 
-fileInput.addEventListener('change', async () => {
-  const file = fileInput.files[0];
-  if (file) {
-    if (file.type === 'application/pdf') {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5 });
+// ─── UTILITY FUNCTIONS ─────────────────────────────────────────────────────
 
-      previewCanvas.height = viewport.height;
-      previewCanvas.width = viewport.width;
-
-      await page.render({ canvasContext: previewCanvas.getContext('2d'), viewport }).promise;
-
-      let fullText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const pg = await pdf.getPage(i);
-        const content = await pg.getTextContent();
-        fullText += content.items.map(item => item.str).join(' ') + ' ';
-      }
-      resumeText = fullText;
-    } else {
+// Read text from PDF / DOCX / TXT
+async function extractText(file) {
+  if (file.type === "application/pdf") {
+    const data = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data }).promise;
+    let txt = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      txt += content.items.map(item => item.str).join(" ") + " ";
+    }
+    return txt;
+  }
+  if (file.name.endsWith(".docx")) {
+    return new Promise(resolve => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        resumeText = e.target.result;
+      reader.onload = e => {
+        mammoth.extractRawText({ arrayBuffer: e.target.result })
+               .then(r => resolve(r.value));
       };
-      reader.readAsText(file);
-    }
+      reader.readAsArrayBuffer(file);
+    });
   }
-});
+  // fallback: plain text
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.readAsText(file);
+  });
+}
 
-analyzeButton.addEventListener('click', () => {
-  if (!resumeText) {
-    alert("Please upload a resume first.");
-    return;
-  }
+// Compute matched vs missing, return per-domain %
+function analyzeKeywords(text, domains) {
+  const lower = text.toLowerCase();
+  const results = {};
+  let sum = 0;
+  const count = Object.keys(domains).length;
 
-  const selectedFramework = frameworkSelect.value;
-  const keywordResults = {};
-  const totalMatches = [];
-
-  Object.entries(skillDomains).forEach(([domain, keywords]) => {
-    let domainKeywords = keywords;
-
-    if (selectedFramework && domain === "Compliance Frameworks") {
-      domainKeywords = keywords.filter(kw => kw === selectedFramework);
-    }
-
-    const matched = domainKeywords.filter(kw => resumeText.toLowerCase().includes(kw.toLowerCase()));
-    keywordResults[domain] = {
+  for (const [domain, keywords] of Object.entries(domains)) {
+    const matched = keywords.filter(k =>
+      lower.includes(k.toLowerCase())
+    );
+    const pct = Math.round((matched.length / keywords.length) * 100);
+    sum += pct;
+    results[domain] = {
       matched,
-      unmatched: domainKeywords.filter(kw => !matched.includes(kw))
+      missing: keywords.filter(k => !matched.includes(k)),
+      matchPercent: pct
     };
+  }
 
-    totalMatches.push((matched.length / domainKeywords.length) * 100);
-  });
-
-  radarData = {};
-  Object.entries(keywordResults).forEach(([domain, result]) => {
-    radarData[domain] = Math.round((result.matched.length / (result.matched.length + result.unmatched.length)) * 100) || 0;
-  });
-
-  generateRadarChart(radarData);
-
-  const overallScore = Math.round(totalMatches.reduce((a, b) => a + b, 0) / totalMatches.length);
-  scoreBar.style.width = `${overallScore}%`;
-  scoreText.innerText = `Overall Coverage: ${overallScore}%`;
-
-  missingKeywords.innerHTML = '';
-  Object.entries(keywordResults).forEach(([domain, result]) => {
-    const container = document.createElement('div');
-    container.innerHTML = `<h3>${domain}</h3><ul>${result.unmatched.map(k => `<li>${k}</li>`).join('')}</ul>`;
-    missingKeywords.appendChild(container);
-  });
-
-  // SMARTER SUGGESTIONS BELOW:
-  suggestionsContainer.innerHTML = '';
-
-  const actionVerbs = ["Implemented", "Engineered", "Established", "Led", "Developed", "Optimized", "Enhanced", "Integrated"];
-  const domainPhrases = {
-    "Authentication & Authorization": "strengthened authentication and authorization mechanisms",
-    "Data Protection & Privacy": "enhanced data protection and privacy controls",
-    "Risk Management & Governance": "advanced risk management and governance programs",
-    "Security Operations & Monitoring": "improved security operations and real-time monitoring capabilities",
-    "Compliance Frameworks": "ensured compliance with major regulatory frameworks",
-    "Integration Security": "secured system integrations and API communications"
+  return {
+    results,
+    overall: Math.round(sum / count)
   };
+}
 
-  Object.entries(keywordResults).forEach(([domain, result]) => {
-    const box = document.createElement('div');
-    box.className = 'suggestion-box';
-    
-    box.innerHTML = `
-      <h3>${domain}</h3>
-      ${result.unmatched.length ? `
-        <p class="suggestion-header">Suggested Resume Enhancements:</p>
-        <ul>
-          ${result.unmatched.map(k => {
-            const verb = actionVerbs[Math.floor(Math.random() * actionVerbs.length)];
-            const phrase = domainPhrases[domain] || "enhanced technical controls";
-            return `<li>${verb} ${k} to ${phrase}.</li>`;
-          }).join('')}
-        </ul>
-      ` : `<p>No additional suggestions needed for this domain.</p>`}
-    `;
+function getRating(pct) {
+  if (pct >= 80) return "Excellent";
+  if (pct >= 60) return "Good";
+  if (pct >= 40) return "Fair";
+  return "Needs Work";
+}
 
-    suggestionsContainer.appendChild(box);
-  });
+// ─── RENDERING FUNCTIONS ──────────────────────────────────────────────────
 
-  matrixTable.innerHTML = '';
-  Object.entries(radarData).forEach(([domain, percent]) => {
-    const row = matrixTable.insertRow();
-    row.innerHTML = `
-      <td>${domain}</td>
-      <td>${percent}%</td>
-      <td>${percent >= 80 ? 'Excellent' : percent >= 50 ? 'Good' : 'Needs Work'}</td>
-      <td>${skillDomains[domain].filter(k => skillDomains["Compliance Frameworks"].includes(k)).join(', ')}</td>
-    `;
-  });
+// Draw radar chart with fixed height & appropriate colors
+function renderRadar(data) {
+  // enforce container height
+  radarCanvas.parentElement.style.height = "300px";
 
-  summaryContainer.innerHTML = `
-    <p>This resume shows ${overallScore >= 80 ? 'strong' : overallScore >= 50 ? 'moderate' : 'limited'} coverage across critical security skill domains. Focus on ${Object.entries(radarData).filter(([_, v]) => v < 50).map(([d]) => d).join(', ') || 'maintaining your strengths'} to enhance technical alignment.</p>
-  `;
-
-  document.getElementById('analysisResults').style.display = 'block';
-});
-
-function generateRadarChart(data) {
-  if (radarInstance) radarInstance.destroy();
-  radarInstance = new Chart(radarChartCtx, {
-    type: 'radar',
+  if (radarChart) radarChart.destroy();
+  radarChart = new Chart(radarCtx, {
+    type: "radar",
     data: {
       labels: Object.keys(data),
       datasets: [{
-        label: 'Coverage %',
+        label: "Coverage %",
         data: Object.values(data),
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+        fill: true,
+        borderColor: darkModeToggle.checked ? "#82aaff" : "#3b82f6",
+        backgroundColor: darkModeToggle.checked
+          ? "rgba(130,170,255,0.3)"
+          : "rgba(59,130,246,0.3)"
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         r: {
-          angleLines: { color: '#ccc' },
-          grid: { color: '#888' },
-          pointLabels: { color: '#fff' },
-          ticks: { color: '#fff', backdropColor: 'transparent' }
+          min: 0,
+          max: 100,
+          ticks: {
+            stepSize: 20,
+            color: getComputedStyle(document.body).color
+          },
+          grid: {
+            color: getComputedStyle(document.body).color
+          },
+          pointLabels: {
+            color: getComputedStyle(document.body).color
+          }
         }
       },
       plugins: {
-        legend: { labels: { color: '#fff' } }
+        legend: {
+          labels: { color: getComputedStyle(document.body).color }
+        }
       }
     }
   });
 }
+
+// Fill the Skills Matrix table
+function buildMatrix(results, domains) {
+  matrixTableBody.innerHTML = "";
+  for (const [domain, info] of Object.entries(results)) {
+    const row = matrixTableBody.insertRow();
+    row.insertCell().textContent = domain;
+    row.insertCell().textContent = `${info.matchPercent}%`;
+    row.insertCell().textContent = getRating(info.matchPercent);
+    row.insertCell().textContent = domains[domain].join(", ");
+  }
+}
+
+// Show missing-keywords cards
+function showMissing(results) {
+  missingKeywords.innerHTML = "";
+  for (const [domain, info] of Object.entries(results)) {
+    const box = document.createElement("div");
+    box.className = "cards-grid-item";
+    box.innerHTML = `
+      <h3>${domain}</h3>
+      <ul>${info.missing.map(k => `<li>${k}</li>`).join("")}</ul>
+    `;
+    missingKeywords.appendChild(box);
+  }
+}
+
+// Show Pro Suggestions (never “N/A”)
+function showSuggestions(results) {
+  suggestionsContainer.innerHTML = "";
+  const sel = industrySelect.value;
+  const key = sel === "Cyber Security"
+    ? "cyber"
+    : sel === "Web Development"
+      ? "webdev"
+      : "finance";
+
+  for (const domain of Object.keys(results)) {
+    const box = document.createElement("div");
+    box.className = "suggestion-card";
+    const list = proSuggestions[key]?.[domain] || [
+      `Consider adding measurable achievements in ${domain}.`
+    ];
+    box.innerHTML = `
+      <h3>${domain}</h3>
+      <ul>${list.map(item => `<li>${item}</li>`).join("")}</ul>
+    `;
+    suggestionsContainer.appendChild(box);
+  }
+}
+
+// ─── DARK MODE TOGGLE ─────────────────────────────────────────────────────
+darkModeToggle.addEventListener("change", () => {
+  document.body.classList.toggle("dark-mode", darkModeToggle.checked);
+  // re-render chart in new colors
+  if (radarChart) renderRadar(radarChart.data.datasets[0].data);
+});
+
+// ─── MAIN “ANALYZE” HANDLER ───────────────────────────────────────────────
+analyzeButton.addEventListener("click", async () => {
+  const industry = industrySelect.value;
+  const domains  = skillDomains[industry];
+  if (!domains) {
+    return alert("Please select Cyber Security, Web Development, or Finance.");
+  }
+
+  // only Cyber Security uses framework
+  frameworkContainer.style.display =
+    industry === "Cyber Security" ? "block" : "none";
+
+  if (!fileInput.files.length) {
+    return alert("Please upload your resume (.pdf, .docx, .txt).");
+  }
+
+  // extract text & analyze
+  const txt = await extractText(fileInput.files[0]);
+  const { results, overall } = analyzeKeywords(txt, domains);
+
+  // chart + summary + scores
+  renderRadar(results && Object.fromEntries(
+    Object.entries(results).map(([d,i]) => [d,i.matchPercent])
+  ));
+
+  scoreBar.style.width = `${overall}%`;
+  scoreText.textContent = `Overall Coverage: ${overall}%`;
+  summaryContainer.innerHTML = `
+    <p>
+      Your resume shows <strong>${overall}%</strong> coverage in <em>${industry}</em>.
+      <br/>
+      Detailed Breakdown: ${
+        Object.entries(results)
+          .map(([d,i]) => `${d}: ${i.matchPercent}%`)
+          .join(" • ")
+      }
+    </p>
+  `;
+
+  // matrix + missing + suggestions
+  buildMatrix(results, domains);
+  showMissing(results);
+  showSuggestions(results);
+});
 
 

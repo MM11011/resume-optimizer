@@ -1,377 +1,194 @@
-/* Base Styles */
+/* Base Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f9fafb;
-    color: #111827;
-    margin: 0;
-    padding: 2rem;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  h1, h2 {
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-  
-  h2 {
-    margin-top: 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  label {
-    font-weight: 600;
-    display: block;
-    margin: 1rem 0 0.5rem;
-  }
-  
-  select, input[type="file"] {
-    padding: 0.5rem;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    width: 100%;
-    max-width: 400px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-  
-  .upload-controls {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: wrap;
-    margin: 1rem 0;
-  }
-  
-  button {
-    padding: 0.75rem 1.5rem;
-    font-weight: bold;
-    font-size: 1rem;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #2563eb;
-  }
-  
-  #statusMessage {
-    margin-top: 0.5rem;
-    font-weight: 600;
-  }
-  
-  /* Dark Mode */
-  .dark-mode {
-    background-color: #1e1f24;
-    color: #f9fafb;
-  }
-  
-  .dark-mode select,
-  .dark-mode input[type="file"] {
-    background-color: #2e2f36;
-    color: #f9fafb;
-    border: 1px solid #555;
-  }
-  
-  .dark-mode button {
-    background-color: #3b82f6;
-  }
-  
-  .dark-mode .score-bar {
-    background-color: #facc15;
-  }
-  
-  /* Toggle Switch */
-  .toggle-container {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0;
-    right: 0; bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 24px;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-  }
-  
-  input:checked + .slider {
-    background-color: #10b981;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(20px);
-  }
-  
-  /* Resume Preview & Chart */
-  .preview-analysis-wrapper {
-    display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-  }
-  
-  .preview-box, .chart-box {
-    flex: 1;
-    min-width: 350px;
-    background-color: #f3f4f6;
-    border-radius: 10px;
-    padding: 1rem;
-    border: 1px solid #e5e7eb;
-  }
-  
-  .dark-mode .preview-box, .dark-mode .chart-box {
-    background-color: #2a2b31;
-    border: 1px solid #444;
-  }
-  
-  /* Score Progress */
-  .score-box {
-    margin-top: 2rem;
-  }
-  
-  .score-bar-wrapper {
-    width: 100%;
-    background-color: #e5e7eb;
-    border-radius: 10px;
-    overflow: hidden;
-    height: 20px;
-  }
-  
-  .score-bar {
-    height: 100%;
-    width: 0%;
-    transition: width 0.5s;
-    background-color: #3b82f6;
-  }
-  
-  .score-text {
-    margin-top: 0.5rem;
-    font-weight: 600;
-  }
-  
-  /* Matrix Table */
-  .matrix-box {
-    margin-top: 2rem;
-    overflow-x: auto;
-  }
-  
-  #skillsMatrix {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  #skillsMatrix th, #skillsMatrix td {
-    border: 1px solid #ccc;
-    padding: 0.75rem;
-    text-align: left;
-  }
-  
-  .dark-mode #skillsMatrix th, .dark-mode #skillsMatrix td {
-    border: 1px solid #444;
-  }
-  
-  /* Domain Keywords */
-  .cards-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-  
-  .cards-grid > div {
-    flex: 1;
-    min-width: 280px;
-    background-color: #f3f4f6;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-  }
-  
-  .dark-mode .cards-grid > div {
-    background-color: #2e2f36;
-    border: 1px solid #444;
-  }
-  
-  /* Suggestions */
-  .suggestions-container {
-    margin-top: 1.5rem;
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  }
-  
-  .suggestion-card {
-    background-color: #f9fafb;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 1rem;
-  }
-  
-  .suggestion-card h3 {
-    margin-top: 0;
-  }
-  
-  .dark-mode .suggestion-card {
-    background-color: #2e2f36;
-    border: 1px solid #444;
-  }
-  
-  .text-preview {
-    white-space: pre-wrap;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    background-color: #f3f4f6;
-    padding: 1rem;
-    border-radius: 10px;
-  }
-  
-  .dark-mode .text-preview {
-    background-color: #2e2f36;
-  }
+  font-family: 'Inter',sans-serif;
+  background: #f9fafb;
+  color: #111827;
+  line-height: 1.5;
+  padding: 2rem;
+  transition: background 0.3s, color 0.3s;
+}
+.container { max-width: 1200px; margin: auto; }
 
-  .intro-section {
-    background: var(--card-bg, #f6f6f6);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .intro-section h2 {
-    margin-top: 0;
-    font-size: 2rem;
-    text-align: center;
-  }
-  
-  .intro-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-  
-  .intro-card {
-    flex: 1 1 calc(33% - 1.5rem);
-    background: var(--card-bg, #ffffff);
-    border: 1px solid var(--border-color, #ddd);
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  .intro-card h3 {
-    margin-top: 0;
-    font-size: 1.25rem;
-  }
-  
-  .intro-card p,
-  .intro-card ul {
-    font-size: 0.95rem;
-    margin-top: 0.75rem;
-    line-height: 1.6;
-  }
-  
-  .intro-card ul {
-    padding-left: 1.25rem;
-  }
+/* Dark Mode */
+.dark-mode {
+  background: #1e1f24;
+  color: #f0f0f0;
+}
+.dark-mode select, .dark-mode input {
+  background: #2e2f36;
+  color: #f0f0f0;
+  border-color: #444;
+}
+.dark-mode .intro-section { background: #2a2b31; }
+.dark-mode .intro-card, .dark-mode .cards-grid > div, .dark-mode .chart-box {
+  background: #2e2f36; border-color: #444;
+}
+.dark-mode .score-bar-wrapper { background: #333; }
+.dark-mode .score-bar { background: #4f9eed; }
 
-/* Fix intro text for dark mode */
-body.dark-mode .intro-section {
-    color: #eaeaea;
-  }
-  
-  body.dark-mode .intro-section h2,
-  body.dark-mode .intro-section h3 {
-    color: #ffffff;
-  }
-  
-  body.dark-mode .intro-card {
-    background-color: #2e2e2e;
-    border-color: #444;
-    color: #e0e0e0;
-  }
-  
-  body.dark-mode .intro-card ul li {
-    color: #d6d6d6;
-  }
- 
-/* Fix for header text inside the intro section in dark mode */
-body.dark-mode .intro-section h1,
-body.dark-mode .intro-section h2,
-body.dark-mode .intro-section h3 {
-  color: #ffffff;
-  
+/* Toggle Slider */
+.toggle-container {
+  display: flex; align-items: center; gap: .5rem;
+  justify-content: flex-end; margin-bottom: 1rem;
+}
+.switch {
+  position: relative; display: inline-block;
+  width: 50px; height: 26px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 26px;
+}
+.slider:before {
+  position: absolute; content: "";
+  height: 20px; width: 20px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider { background-color: #4f9eed; }
+input:checked + .slider:before { transform: translateX(24px); }
+
+/* Intro Section */
+.intro-section {
+  background: #f6f6f6;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.intro-section h1 { font-size: 2rem; margin-bottom: 1rem; }
+.intro-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.5rem; }
+.intro-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.intro-card.full { grid-column: 1 / -1; }
+.intro-card h2 { margin-bottom: .5rem; }
+
+/* Form Controls */
+label { font-weight: 600; margin-top: 1rem; display: block; }
+select, input[type="file"] {
+  padding: .5rem; font-size: 1rem; margin-bottom: 1rem;
+  width: 100%; max-width: 400px;
+  border: 1px solid #ccc; border-radius: 6px;
+}
+.upload-controls {
+  display: flex; gap: 1rem; align-items: center; margin: 1rem 0;
+}
+button {
+  background: #3b82f6;
+  color: #fff;
+  border: none; border-radius: 6px;
+  padding: .75rem 1.5rem;
+  cursor: pointer; font-weight: 600;
+}
+button:hover { background: #2563eb; }
+
+/* Chart */
+.chart-box {
+  max-width: 400px;
+  margin-bottom: 2rem;
+  background: #f3f4f6;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+}
+.chart-box h2 { margin-bottom: 1rem; }
+.chart-box canvas {
+  width: 100% !important; height: auto !important; display: block;
 }
 
-body.dark-mode .intro-section p {
-  color: #dcdcdc;
+/* === make radar chart container a fixed height === */
+.chart-box {
+  /* if you want two charts per row, keep max-width; otherwise adjust */
+  max-width: 400px;
+
+  /* give it a fixed height so Chart.js stops resizing forever */
+  height: 400px;
 }
 
-body.dark-mode .intro-section {
-  color: #e0e0e0;
+/* force the canvas to fill its parent exactly */
+.chart-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
-/* Fix visibility of intro header and subheader in dark mode */
-body.dark-mode .intro-section h1 {
-    color: #0e0d0d !important;
-  }
-  
-  body.dark-mode .intro-section h2 {
-    color: #0e0d0d !important;
-  }
 
-  
-  body.dark-mode .intro-section p {
-    color: #dddddd;
-  }
-  
- /* Fix for header visibility in dark mode */
-.dark-mode h1,
-.dark-mode .subheading {
-  color: #f9fafb !important;
+/* Score */
+.score-box { margin-bottom: 2rem; }
+.score-bar-wrapper {
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 20px;
 }
- 
-.intro-section p {
-    color: black;
-}  
+.score-bar {
+  width: 0; height: 100%;
+  background: #3b82f6;
+  transition: width .5s;
+}
+.score-text { font-weight: 600; margin-top: .5rem; }
+
+/* Summary & Details */
+.summary-box { margin-bottom: 2rem; }
+.detailed-scores { margin-top: 1rem; }
+.detailed-scores ul { list-style: disc inside; }
+
+/* Matrix */
+.matrix-box { overflow-x: auto; margin-bottom: 2rem; }
+#skillsMatrix {
+  width: 100%; border-collapse: collapse;
+}
+#skillsMatrix th, #skillsMatrix td {
+  border: 1px solid #ccc;
+  padding: .75rem;
+  text-align: left;
+}
+
+/* Cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.cards-grid > div {
+  background: #f3f4f6;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+/* ─── LIST FORMATTING FIX ───────────────────────────────────────────── */
+
+/* ensure each card’s UL fits nicely inside */
+.cards-grid > div ul {
+  padding-left: 1.25rem;   /* indent bullets */
+  margin: 0.5rem 0;        /* give it some breathing room */
+}
+
+/* tighten up bullet spacing */
+.cards-grid > div li {
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
+}
+
+/* prevent odd overflow / alignment glitches */
+.cards-grid > div {
+  break-inside: avoid;     /* keep each card intact in flex/grid */
+  overflow-wrap: break-word;
+}
+
+
+
+
