@@ -1,15 +1,16 @@
-// script.js
-
 // ─── DOM REFERENCES ─────────────────────────────────────────────────────────
 const industrySelect       = document.getElementById('industrySelect');
 const frameworkContainer   = document.getElementById('frameworkContainer');
 const frameworkSelect      = document.getElementById('frameworkSelect');
+const jobDescInput         = document.getElementById('jobDescInput');
 const fileInput            = document.getElementById('fileInput');
 const analyzeButton        = document.getElementById('analyzeButton');
 const darkModeToggle       = document.getElementById('darkModeToggle');
 
 const scoreBar             = document.getElementById('scoreBar');
 const scoreText            = document.getElementById('scoreText');
+const jdScoreBar           = document.getElementById('jdScoreBar');
+const jdScoreText          = document.getElementById('jdScoreText');
 const summaryContainer     = document.getElementById('executiveSummary');
 const missingKeywords      = document.getElementById('missingKeywords');
 const suggestionsContainer = document.getElementById('suggestionsContainer');
@@ -22,7 +23,6 @@ const radarCtx             = radarCanvas.getContext('2d');
 let radarChart             = null;
 
 // ─── SKILL DOMAIN DEFINITIONS ───────────────────────────────────────────────
-// Three supported fields: Cyber Security, Web Development, Finance
 const skillDomains = {
   "Cyber Security": {
     "Authentication & Authorization": [
@@ -61,34 +61,7 @@ const skillDomains = {
   }
 };
 
-// ─── PROFESSIONAL SUGGESTIONS BANK ─────────────────────────────────────────
-const proSuggestions = {
-  cyber: {
-    "Authentication & Authorization": [
-      "Architected a Zero Trust framework leveraging SAML/OAuth2, reducing unauthorized access by 90%.",
-      "Led RBAC policy design to enforce least-privilege for 500+ users across multi-cloud."
-    ],
-    // …and so on for each cyber domain…
-  },
-  webdev: {
-    "Front-End": [
-      "Optimized React bundle via code-splitting, speeding load by 50%.",
-      "Built WCAG 2.1 AA accessible components, boosting usability."
-    ],
-    // …etc…
-  },
-  finance: {
-    "Financial Analysis": [
-      "Performed variance analysis on monthly P&L, uncovering 8% cost savings.",
-      "Built dynamic Excel models with macros for scenario planning."
-    ],
-    // …etc…
-  }
-};
-
 // ─── UTILITY FUNCTIONS ─────────────────────────────────────────────────────
-
-// Read text from PDF / DOCX / TXT
 async function extractText(file) {
   if (file.type === "application/pdf") {
     const data = await file.arrayBuffer();
@@ -106,12 +79,11 @@ async function extractText(file) {
       const reader = new FileReader();
       reader.onload = e => {
         mammoth.extractRawText({ arrayBuffer: e.target.result })
-               .then(r => resolve(r.value));
+          .then(r => resolve(r.value));
       };
       reader.readAsArrayBuffer(file);
     });
   }
-  // fallback: plain text
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = e => resolve(e.target.result);
@@ -119,47 +91,45 @@ async function extractText(file) {
   });
 }
 
-// Compute matched vs missing, return per-domain %
 function analyzeKeywords(text, domains) {
   const lower = text.toLowerCase();
   const results = {};
   let sum = 0;
   const count = Object.keys(domains).length;
 
-  for (const [domain, keywords] of Object.entries(domains)) {
-    const matched = keywords.filter(k =>
-      lower.includes(k.toLowerCase())
-    );
-    const pct = Math.round((matched.length / keywords.length) * 100);
+  for (const [d, keys] of Object.entries(domains)) {
+    const matched = keys.filter(k => lower.includes(k.toLowerCase()));
+    const pct = Math.round((matched.length / keys.length) * 100);
     sum += pct;
-    results[domain] = {
-      matched,
-      missing: keywords.filter(k => !matched.includes(k)),
-      matchPercent: pct
-    };
+    results[d] = { matched, missing: keys.filter(k => !matched.includes(k)), matchPercent: pct };
   }
-
-  return {
-    results,
-    overall: Math.round(sum / count)
-  };
+  return { results, overall: Math.round(sum / count) };
 }
 
-function getRating(pct) {
-  if (pct >= 80) return "Excellent";
-  if (pct >= 60) return "Good";
-  if (pct >= 40) return "Fair";
+function analyzeJobDesc(text, domains) {
+  const lower = text.toLowerCase();
+  const matched = {}, missing = {};
+  for (const [d, keys] of Object.entries(domains)) {
+    const m = keys.filter(k => lower.includes(k.toLowerCase()));
+    matched[d] = m;
+    missing[d] = keys.filter(k => !m.includes(k));
+  }
+  return { matched, missing };
+}
+
+function getRating(p) {
+  if (p >= 80) return "Excellent";
+  if (p >= 60) return "Good";
+  if (p >= 40) return "Fair";
   return "Needs Work";
 }
 
-// ─── RENDERING FUNCTIONS ──────────────────────────────────────────────────
-
-// Draw radar chart with fixed height & appropriate colors
+// ─── RENDERING ──────────────────────────────────────────────────────────────
 function renderRadar(data) {
-  // enforce container height
+  const labelColor = darkModeToggle.checked ? "#ffffff" : "#111827";
   radarCanvas.parentElement.style.height = "300px";
-
   if (radarChart) radarChart.destroy();
+
   radarChart = new Chart(radarCtx, {
     type: "radar",
     data: {
@@ -179,75 +149,63 @@ function renderRadar(data) {
       maintainAspectRatio: false,
       scales: {
         r: {
-          min: 0,
-          max: 100,
-          ticks: {
-            stepSize: 20,
-            color: getComputedStyle(document.body).color
-          },
-          grid: {
-            color: getComputedStyle(document.body).color
-          },
-          pointLabels: {
-            color: getComputedStyle(document.body).color
-          }
+          min: 0, max: 100,
+          ticks: { stepSize: 20, color: labelColor },
+          grid: { color: labelColor },
+          pointLabels: { color: labelColor }
         }
       },
       plugins: {
-        legend: {
-          labels: { color: getComputedStyle(document.body).color }
-        }
+        legend: { labels: { color: labelColor } }
       }
     }
   });
 }
 
-// Fill the Skills Matrix table
 function buildMatrix(results, domains) {
   matrixTableBody.innerHTML = "";
-  for (const [domain, info] of Object.entries(results)) {
+  for (const [d,i] of Object.entries(results)) {
     const row = matrixTableBody.insertRow();
-    row.insertCell().textContent = domain;
-    row.insertCell().textContent = `${info.matchPercent}%`;
-    row.insertCell().textContent = getRating(info.matchPercent);
-    row.insertCell().textContent = domains[domain].join(", ");
+    row.insertCell().textContent = d;
+    row.insertCell().textContent = `${i.matchPercent}%`;
+    row.insertCell().textContent = getRating(i.matchPercent);
+    row.insertCell().textContent = domains[d].join(", ");
   }
 }
 
-// Show missing-keywords cards
 function showMissing(results) {
   missingKeywords.innerHTML = "";
-  for (const [domain, info] of Object.entries(results)) {
-    const box = document.createElement("div");
-    box.className = "cards-grid-item";
-    box.innerHTML = `
-      <h3>${domain}</h3>
-      <ul>${info.missing.map(k => `<li>${k}</li>`).join("")}</ul>
-    `;
-    missingKeywords.appendChild(box);
+  for (const [d,i] of Object.entries(results)) {
+    const c = document.createElement("div");
+    c.innerHTML = `<h3>${d}</h3><ul>${i.missing.map(k=>`<li>${k}</li>`).join("")}</ul>`;
+    missingKeywords.appendChild(c);
   }
 }
 
-// Show Pro Suggestions (never “N/A”)
-function showSuggestions(results) {
+function showSuggestions(res, jobDesc) {
   suggestionsContainer.innerHTML = "";
-  const sel = industrySelect.value;
-  const key = sel === "Cyber Security"
-    ? "cyber"
-    : sel === "Web Development"
-      ? "webdev"
-      : "finance";
+  for (const [d,i] of Object.entries(res)) {
+    const lines = [];
+    const focus = jobDesc.matched[d][0] || jobDesc.missing[d][0] || null;
 
-  for (const domain of Object.keys(results)) {
+    i.missing.forEach(k => {
+      if (focus) {
+        lines.push(`Highlight your ${k} experience to support the job description’s focus on "${focus}". For example: “Implemented ${k} to strengthen ${focus} across projects.”`);
+      } else {
+        lines.push(`Include a measurable example of ${k}—e.g. “Developed ${k} process that….”`);
+      }
+    });
+
+    if (!lines.length && jobDesc.missing[d].length) {
+      lines.push(`Great coverage! You could still mention how you delivered "${jobDesc.missing[d][0]}".`);
+    }
+
+    if (!lines.length) {
+      lines.push(`Your resume already shows strong expertise in ${d}.`);
+    }
+
     const box = document.createElement("div");
-    box.className = "suggestion-card";
-    const list = proSuggestions[key]?.[domain] || [
-      `Consider adding measurable achievements in ${domain}.`
-    ];
-    box.innerHTML = `
-      <h3>${domain}</h3>
-      <ul>${list.map(item => `<li>${item}</li>`).join("")}</ul>
-    `;
+    box.innerHTML = `<h3>${d}</h3><ul>${lines.map(l=>`<li>${l}</li>`).join("")}</ul>`;
     suggestionsContainer.appendChild(box);
   }
 }
@@ -255,11 +213,15 @@ function showSuggestions(results) {
 // ─── DARK MODE TOGGLE ─────────────────────────────────────────────────────
 darkModeToggle.addEventListener("change", () => {
   document.body.classList.toggle("dark-mode", darkModeToggle.checked);
-  // re-render chart in new colors
-  if (radarChart) renderRadar(radarChart.data.datasets[0].data);
+  if (radarChart) {
+    const data = radarChart.data.datasets[0].data.reduce((o,v,i) => {
+      o[radarChart.data.labels[i]] = v; return o;
+    }, {});
+    renderRadar(data);
+  }
 });
 
-// ─── MAIN “ANALYZE” HANDLER ───────────────────────────────────────────────
+// ─── MAIN ANALYZE HANDLER ──────────────────────────────────────────────────
 analyzeButton.addEventListener("click", async () => {
   const industry = industrySelect.value;
   const domains  = skillDomains[industry];
@@ -267,41 +229,61 @@ analyzeButton.addEventListener("click", async () => {
     return alert("Please select Cyber Security, Web Development, or Finance.");
   }
 
-  // only Cyber Security uses framework
-  frameworkContainer.style.display =
-    industry === "Cyber Security" ? "block" : "none";
+  // show/hide framework
+  frameworkContainer.classList.toggle("hidden", industry !== "Cyber Security");
 
   if (!fileInput.files.length) {
     return alert("Please upload your resume (.pdf, .docx, .txt).");
   }
 
-  // extract text & analyze
-  const txt = await extractText(fileInput.files[0]);
-  const { results, overall } = analyzeKeywords(txt, domains);
+  // extract texts
+  const resumeText = await extractText(fileInput.files[0]);
+  const jdText     = jobDescInput.value.trim();
+  const jobDesc    = analyzeJobDesc(jdText || "", domains);
 
-  // chart + summary + scores
-  renderRadar(results && Object.fromEntries(
+  // analyze resume vs. domains
+  const { results, overall } = analyzeKeywords(resumeText, domains);
+
+  // analyze job description coverage
+  const jdPercents = Object.entries(jobDesc.matched)
+    .map(([d,arr]) =>
+      Math.round((arr.length / domains[d].length) * 100)
+    );
+  const jdOverall = Math.round(jdPercents.reduce((a,b)=>a+b,0) / jdPercents.length);
+
+  // render radar
+  renderRadar(Object.fromEntries(
     Object.entries(results).map(([d,i]) => [d,i.matchPercent])
   ));
 
-  scoreBar.style.width = `${overall}%`;
-  scoreText.textContent = `Overall Coverage: ${overall}%`;
+  // update resume health
+  scoreBar.style.width  = `${overall}%`;
+  scoreText.textContent  = `Overall Coverage: ${overall}%`;
+
+  // update job description match
+  jdScoreBar.style.width  = `${jdOverall}%`;
+  jdScoreText.textContent = `Job Description Coverage: ${jdOverall}%`;
+
+  // summary
   summaryContainer.innerHTML = `
-    <p>
-      Your resume shows <strong>${overall}%</strong> coverage in <em>${industry}</em>.
-      <br/>
-      Detailed Breakdown: ${
-        Object.entries(results)
-          .map(([d,i]) => `${d}: ${i.matchPercent}%`)
-          .join(" • ")
-      }
-    </p>
+    <p>Your resume shows <strong>${overall}%</strong> domain coverage in <em>${industry}</em>.</p>
+    <p>Your resume matches <strong>${jdOverall}%</strong> of the key terms in your pasted job description.</p>
   `;
 
-  // matrix + missing + suggestions
+  // fill tables & cards
   buildMatrix(results, domains);
   showMissing(results);
-  showSuggestions(results);
+  showSuggestions(results, jobDesc);
+
+  document.getElementById("analysisResults").classList.remove("hidden");
 });
+
+
+
+
+
+
+
+
 
 

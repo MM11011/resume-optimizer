@@ -30,28 +30,30 @@
       <h1>Welcome to the Resume Optimizer 🔍</h1>
       <div class="intro-grid">
         <div class="intro-card full">
-          <p>Optimize your resume with targeted keyword analysis. Pick your field, upload your document, and get instant feedback on how well your resume aligns with industry-specific lingo.</p>
+          <p>Optimize your resume with targeted keyword analysis. Pick your field, paste the job description, upload your document, and get instant feedback on how well your resume aligns with both industry lingo and the specific job description.</p>
         </div>
         <div class="intro-card">
           <h2>🎯 Why Keywords Matter</h2>
-          <p>Applicant Tracking Systems (ATS) automatically scan resumes for exact keywords. By matching the right terms, you drastically increase your chances of passing that first automated filter.</p>
+          <p>ATS scan for exact terms before a human ever sees your resume. Matching both domain keywords and job-description-specific terms gives you the best shot at passing that first filter.</p>
         </div>
         <div class="intro-card">
-          <h2>🌐 Industry Selection</h2>
-          <p>Choose <strong>Cyber Security</strong>, <strong>Web Development</strong>, or <strong>Finance</strong> to tailor the analysis to the jargon recruiters expect in each field.</p>
+          <h2>🌐 Industry & Job Description</h2>
+          <p>Select your field, then paste in the full job description you’re targeting. We’ll tailor every suggestion to that description’s most important phrases.</p>
         </div>
         <div class="intro-card">
           <h2>🚀 How to Use</h2>
           <ol>
-            <li>Select one of the three supported industries.</li>
-            <li>If you chose <em>Cyber Security</em>, pick a compliance framework (optional).</li>
-            <li>Upload your resume (.docx, .pdf or .txt).</li>
-            <li>Click “Analyze Resume” and review your personalized report:</li>
-            <ul>
-              <li>Overall Health Score</li>
-              <li>Detailed Skill Domain Coverage</li>
-              <li>Missing Keywords & Enhancement Suggestions</li>
-            </ul>
+            <li>Choose <em>Cyber Security</em>, <em>Web Development</em>, or <em>Finance</em>.</li>
+            <li>Paste the complete job description in the box below.</li>
+            <li>Upload your resume (.docx, .pdf, or .txt).</li>
+            <li>Click “Analyze Resume” to see:
+              <ul>
+                <li>Overall Health Score</li>
+                <li>Skill Domain Coverage</li>
+                <li>Missing Keywords by Domain</li>
+                <li>Job-Description-Driven Enhancement Suggestions</li>
+              </ul>
+            </li>
           </ol>
         </div>
       </div>
@@ -79,6 +81,9 @@
       </select>
     </div>
 
+    <label for="jobDescInput">Job Description</label>
+    <textarea id="jobDescInput" rows="5" placeholder="▶︎ Paste the full job description here…"></textarea>
+
     <div class="upload-controls">
       <input type="file" id="fileInput" accept=".docx,.pdf,.txt" />
       <button id="analyzeButton">Analyze Resume</button>
@@ -97,6 +102,13 @@
         <h2>✅ Resume Health Score</h2>
         <div class="score-bar-wrapper"><div id="scoreBar" class="score-bar"></div></div>
         <div id="scoreText" class="score-text"></div>
+      </div>
+
+      <!-- NEW: Job Description Match -->
+      <div id="jdScoreContainer" class="score-box">
+        <h2>📄 Job Description Match</h2>
+        <div class="score-bar-wrapper"><div id="jdScoreBar" class="score-bar"></div></div>
+        <div id="jdScoreText" class="score-text"></div>
       </div>
 
       <div class="summary-box">
@@ -127,6 +139,12 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 

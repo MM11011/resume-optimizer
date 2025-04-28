@@ -12,16 +12,17 @@ body {
 
 /* Dark Mode */
 .dark-mode {
-  background: #1e1f24;
-  color: #f0f0f0;
+  background: #1e1f24; color: #f0f0f0;
 }
-.dark-mode select, .dark-mode input {
-  background: #2e2f36;
-  color: #f0f0f0;
-  border-color: #444;
+.dark-mode select,
+.dark-mode input,
+.dark-mode textarea {
+  background: #2e2f36; color: #f0f0f0; border-color: #444;
 }
-.dark-mode .intro-section { background: #2a2b31; }
-.dark-mode .intro-card, .dark-mode .cards-grid > div, .dark-mode .chart-box {
+.dark-mode .intro-section { background: #2a2f31; }
+.dark-mode .intro-card,
+.dark-mode .cards-grid > div,
+.dark-mode .chart-box {
   background: #2e2f36; border-color: #444;
 }
 .dark-mode .score-bar-wrapper { background: #333; }
@@ -32,24 +33,15 @@ body {
   display: flex; align-items: center; gap: .5rem;
   justify-content: flex-end; margin-bottom: 1rem;
 }
-.switch {
-  position: relative; display: inline-block;
-  width: 50px; height: 26px;
-}
+.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider {
-  position: absolute; cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 26px;
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc; transition: .4s; border-radius: 26px;
 }
 .slider:before {
-  position: absolute; content: "";
-  height: 20px; width: 20px;
-  left: 3px; bottom: 3px;
-  background-color: white;
-  transition: .4s;
+  position: absolute; content: ""; height: 20px; width: 20px;
+  left: 3px; bottom: 3px; background-color: white; transition: .4s;
   border-radius: 50%;
 }
 input:checked + .slider { background-color: #4f9eed; }
@@ -57,92 +49,52 @@ input:checked + .slider:before { transform: translateX(24px); }
 
 /* Intro Section */
 .intro-section {
-  background: #f6f6f6;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
+  background: #f6f6f6; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;
 }
 .intro-section h1 { font-size: 2rem; margin-bottom: 1rem; }
-.intro-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.5rem; }
+.intro-grid {
+  display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.5rem;
+}
 .intro-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  background: #fff; border: 1px solid #ddd; border-radius: 10px;
+  padding: 1.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 .intro-card.full { grid-column: 1 / -1; }
-.intro-card h2 { margin-bottom: .5rem; }
 
 /* Form Controls */
 label { font-weight: 600; margin-top: 1rem; display: block; }
-select, input[type="file"] {
+select, input[type="file"], textarea {
   padding: .5rem; font-size: 1rem; margin-bottom: 1rem;
-  width: 100%; max-width: 400px;
-  border: 1px solid #ccc; border-radius: 6px;
+  width: 100%; max-width: 800px; border: 1px solid #ccc; border-radius: 6px;
 }
+textarea { resize: vertical; height: 120px; }
 .upload-controls {
   display: flex; gap: 1rem; align-items: center; margin: 1rem 0;
 }
 button {
-  background: #3b82f6;
-  color: #fff;
-  border: none; border-radius: 6px;
-  padding: .75rem 1.5rem;
-  cursor: pointer; font-weight: 600;
+  background: #3b82f6; color: #fff; border: none; border-radius: 6px;
+  padding: .75rem 1.5rem; cursor: pointer; font-weight: 600;
 }
 button:hover { background: #2563eb; }
 
 /* Chart */
 .chart-box {
-  max-width: 400px;
-  margin-bottom: 2rem;
-  background: #f3f4f6;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  max-width: 400px; height: 400px; margin-bottom: 2rem;
+  background: #f3f4f6; border: 1px solid #ddd; border-radius: 10px;
   padding: 1rem;
 }
 .chart-box h2 { margin-bottom: 1rem; }
 .chart-box canvas {
-  width: 100% !important; height: auto !important; display: block;
+  width: 100% !important; height: 100% !important; display: block;
 }
 
-/* === make radar chart container a fixed height === */
-.chart-box {
-  /* if you want two charts per row, keep max-width; otherwise adjust */
-  max-width: 400px;
-
-  /* give it a fixed height so Chart.js stops resizing forever */
-  height: 400px;
-}
-
-/* force the canvas to fill its parent exactly */
-.chart-box canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
-
-
-/* Score */
+/* Score & JD Match */
 .score-box { margin-bottom: 2rem; }
 .score-bar-wrapper {
-  background: #e5e7eb;
-  border-radius: 10px;
-  overflow: hidden;
-  height: 20px;
+  background: #e5e7eb; border-radius: 10px; overflow: hidden; height: 20px;
 }
-.score-bar {
-  width: 0; height: 100%;
-  background: #3b82f6;
-  transition: width .5s;
-}
+.score-bar { width: 0; height: 100%; background: #3b82f6; transition: width .5s; }
 .score-text { font-weight: 600; margin-top: .5rem; }
-
-/* Summary & Details */
-.summary-box { margin-bottom: 2rem; }
-.detailed-scores { margin-top: 1rem; }
-.detailed-scores ul { list-style: disc inside; }
 
 /* Matrix */
 .matrix-box { overflow-x: auto; margin-bottom: 2rem; }
@@ -150,44 +102,25 @@ button:hover { background: #2563eb; }
   width: 100%; border-collapse: collapse;
 }
 #skillsMatrix th, #skillsMatrix td {
-  border: 1px solid #ccc;
-  padding: .75rem;
-  text-align: left;
+  border: 1px solid #ccc; padding: .75rem; text-align: left;
 }
 
 /* Cards */
 .cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  gap: 1.5rem; margin-bottom: 2rem;
 }
 .cards-grid > div {
-  background: #f3f4f6;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1rem;
+  background: #f3f4f6; border: 1px solid #ddd; border-radius: 10px; padding: 1rem;
 }
-
-/* ─── LIST FORMATTING FIX ───────────────────────────────────────────── */
-
-/* ensure each card’s UL fits nicely inside */
 .cards-grid > div ul {
-  padding-left: 1.25rem;   /* indent bullets */
-  margin: 0.5rem 0;        /* give it some breathing room */
+  padding-left: 1.25rem; margin: .5rem 0;
 }
+.cards-grid > div li { margin-bottom: .3rem; line-height: 1.4; }
 
-/* tighten up bullet spacing */
-.cards-grid > div li {
-  margin-bottom: 0.3rem;
-  line-height: 1.4;
-}
 
-/* prevent odd overflow / alignment glitches */
-.cards-grid > div {
-  break-inside: avoid;     /* keep each card intact in flex/grid */
-  overflow-wrap: break-word;
-}
+
+
 
 
 
