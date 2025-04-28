@@ -1,66 +1,88 @@
-# 🔍 Prompt Injection Resume Optimizer
+# 🔍 Resume Optimizer
 
-A professional-grade tool designed to optimize resumes by intelligently identifying missing high-value security, risk management, and GRC-related keywords that align with modern ATS (Applicant Tracking System) and recruiter expectations.
+A versatile, client-side tool to enhance your resume with smart keyword analysis tailored to **Cyber Security**, **Web Development**, and **Finance** roles—complete with dynamic scoring, rich visualizations, and dark-mode support.
 
-This tool helps users strategically enhance their resumes for roles like Security Analyst, GRC Consultant, Risk Manager, and Compliance Specialist — by suggesting domain-specific enhancements across Authentication, Data Protection, Governance, Monitoring, and Compliance frameworks (NIST 800-53, ISO 27001, GDPR, HIPAA, and more).
+---
 
-## ✨ Features
+## ✨ New Features
 
-- Upload your resume in **.docx**, **.pdf**, or **.txt** formats
-- **Automatic parsing** and keyword extraction
-- **Keyword analysis** organized by security and GRC domain categories
-- **Missing keyword identification** with grouped results
-- **AI-generated enhancement suggestions** tailored to the missing keywords
-- **Downloadable improvement recommendations** for easy editing
-- **Real-time scoring** (in upcoming updates)
+- 🏷️ **Industry Selection**  
+  Choose one of three supported fields—**Cyber Security**, **Web Development**, or **Finance**—to align your resume with each industry’s lingo and priorities.
 
-## 🚀 Upcoming Enhancements
+- 🖼️ **Resume Upload & Parsing**  
+  Upload `.docx`, `.pdf`, or `.txt` files. The tool extracts your text and runs domain-specific keyword matching.
 
-- Dynamic resume health scoring
-- Domain-specific keyword match visualization
-- Intelligent phrasing and sentence upgrades
-- Smart compliance framework alignment tuning
-- Dark mode and mobile-optimized UI improvements
+- 📊 **Dynamic Skill Domain Coverage**  
+  Radar charts that reflect your match percentage across each skill domain, resizing responsively for both light and dark modes.
+
+- ✅ **Resume Health Score**  
+  A real-time progress bar and numeric score summarizing your overall coverage in the selected industry.
+
+- 🧠 **Executive Summary**  
+  Concise, actionable takeaways based on your domain coverage—highlighting strengths and opportunities.
+
+- 📋 **Skills Matrix**  
+  Tabular breakdown of each domain: match percentage, rating (Excellent / Good / Needs Work), and the full list of keywords.
+
+- 🧩 **Missing Keywords by Domain**  
+  Card-style lists of the keywords you haven’t covered—so you know exactly what to add.
+
+- 🛠️ **Suggested Enhancements**  
+  Professionally worded, industry-tailored bullet points you can paste directly into your resume.
+
+- 🌗 **Dark Mode Toggle**  
+  A modern slider UI (sun / moon icon) to switch between light and dark themes.
+
+---
+
+## 🎬 Demo
+
+1. **Select an Industry** from the dropdown at the top.  
+2. (If **Cyber Security** is chosen) pick a compliance framework (NIST 800-53, HIPAA, ISO 27001, SOC 2, GDPR, PCI-DSS).  
+3. **Upload your resume** file and click **Analyze Resume**.  
+4. Review your **Health Score**, **Radar Chart**, **Skills Matrix**, **Missing Keywords**, and **Suggestions**—all tailored to your field.
+
+---
 
 ## 🛠️ Built With
 
-- HTML, CSS, JavaScript
-- [Mammoth.js](https://github.com/mwilliamson/mammoth.js) (for parsing .docx files)
-- [PDF.js](https://mozilla.github.io/pdf.js/) (for parsing .pdf files)
-- Open web standards — no server-side dependencies
-
-## 📂 Project Status
-
-🛠️ Actively in development.  
-Future versions will include expanded AI capabilities, advanced resume optimization scoring, and deep compliance mapping.
+- **HTML, CSS, JavaScript**  
+- [Mammoth.js](https://github.com/mwilliamson/mammoth.js) for `.docx` parsing  
+- [PDF.js](https://mozilla.github.io/pdf.js/) for `.pdf` parsing  
+- [Chart.js](https://www.chartjs.org/) for interactive radar charts  
 
 ---
 
-## 🧠 About the Project
+## 📈 Version History
 
-Prompt Injection Resume Optimizer is designed to bridge the gap between modern security/resume expectations and the practical challenges candidates face when trying to align their experience with complex hiring filters.
+### v2.1 (Current)
+- Industry-specific analysis for **Cyber Security**, **Web Development**, **Finance**  
+- Added **Resume Health Score** progress bar  
+- Revamped **dark-mode slider** with sun / moon icons  
+- Improved chart responsiveness and meaningful tick labels  
+- Expanded suggestion logic for each industry’s domains  
+- Removed in-page resume preview; focus on analysis pipeline  
 
-This tool aims to **level the playing field** by using automation and best practices — helping job seekers surface their strengths the way recruiters and AI systems actually evaluate.
+### v2.0
+- Initial dynamic keyword analysis for Cyber Security domains  
+- Radar chart visualization  
+- Missing-keyword cards and AI-generated suggestions  
 
 ---
 
-## 🚀 Version 2.0 Roadmap
+## 🚀 Roadmap
 
-- [ ] Dynamic Resume Health Scoring
-- [ ] Category Strength Visualization
-- [ ] Expanded Keyword Libraries (Cloud, Privacy, DevSecOps)
-- [ ] AI-Powered Suggestion Rewrites
-- [ ] Framework-Specific Targeting (NIST, HIPAA, SOC 2 focus)
-- [ ] Dark Mode UI Toggle
-- [ ] Responsive Mobile Layout
-- [ ] Animated Progress Bars
-- [ ] Visual Resume Heatmap (Stretch Goal)
-- [ ] SEO Optimization for GitHub Pages
-- [ ] Social Sharing OpenGraph Images
-- [ ] Demo Video Walkthrough
+- 🔮 **AI-Enhanced Rewrites**: Turn bullet suggestions into polished sentences.  
+- 📱 **Mobile-First Design**: Ensure great UX on phones and tablets.  
+- 🧩 **Additional Industries**: Add Marketing, Healthcare, and more.  
+- 📊 **Customizable Dashboards**: Let users pick which domains to display.  
+- 🔗 **GitHub Pages Deployment**: Share your analysis publically.  
 
+---
 
 ## 📜 License
 
-This project is open-source and available under the MIT License.
+This project is open-source under the **MIT License**.  
+Feel free to fork, tweak, and contribute!  
+
 
